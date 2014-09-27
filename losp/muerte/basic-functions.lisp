@@ -201,7 +201,7 @@ from regular function-calls."
 	  (:leal (:eax -7) :ecx)
 	  (:andb 7 :cl)
 	  (:jne 'not-symbol)
-	  (:movl (:eax #.(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value))
+	  (:movl (:eax #.(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value))
 		 :esi)
 	  (:jmp 'esi-ok)
 	 not-symbol
@@ -210,7 +210,7 @@ from regular function-calls."
 		  (:compile-form (:result-mode :ignore)
 		   (error "Can't apply non-function ~W." function))))
 	  (:cmpb #.(movitz::tag :funobj)
-		 (:eax #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::type)))
+		 (:eax #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::type)))
 	  (:jne 'not-a-funobj)
 	  (:movl :eax :esi)
 	 esi-ok
@@ -221,7 +221,7 @@ from regular function-calls."
 	 zero-args
 	  (:xorl :ecx :ecx)
 	  (:compile-form (:result-mode :edx) function)
-	  (:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))
+	  (:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))
 	  (:jmp 'apply-done)
 	 more-than-zero-args
 	  (:movl (:ebx -1) :eax)
@@ -232,7 +232,7 @@ from regular function-calls."
 	  (:jz 'more-than-one-args)
 	 one-args
 	  (:compile-form (:result-mode :edx) function)
-	  (:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))
+	  (:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))
 	  (:jmp 'apply-done)
 	 more-than-one-args
 	  (:movl (:ebx -1) :edx)
@@ -244,7 +244,7 @@ from regular function-calls."
 	  (:jz 'more-than-two-args)
 	 two-args
 	  (:compile-form (:result-mode :edx) function)
-	  (:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
+	  (:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
 	  (:jmp 'apply-done)
 	 more-than-two-args
 	  (:pushl (:edx -1))
@@ -255,7 +255,7 @@ from regular function-calls."
 	  (:jz 'more-than-three-args)
 	 three-args
 	  (:compile-form (:result-mode :edx) function)
-	  (:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
+	  (:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
 	  (:jmp 'apply-done)
 	 more-than-three-args
 	  (:pushl (:edx -1))
@@ -276,7 +276,7 @@ from regular function-calls."
 	  (:movb #xff :cl)
 	 ecx-ok
 	  (:compile-form (:result-mode :edx) function)
-	  (:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))
+	  (:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))
 	 apply-done
 	  ;; Don't need to restore ESP because we'll be exiting this stack-frame
 	  ;; now anyway.

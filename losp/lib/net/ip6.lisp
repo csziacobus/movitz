@@ -705,7 +705,7 @@ Return as primary value the offset of the optional source link-layer address, if
 				     (udp-checksum request))
 			      (when (= 1 (udp-header-destination request))
 				(setf (muerte::vector-element-type request)
-				  #.(bt:enum-value 'movitz::movitz-vector-element-type :character))
+				  #.(binary-types:enum-value 'movitz::movitz-vector-element-type :character))
 				(let (seqno last-seqno (poff (+ 8 offset)))
 				  (multiple-value-setq (seqno poff)
 				    (parse-integer request :start poff :junk-allowed t))
@@ -728,7 +728,7 @@ Return as primary value the offset of the optional source link-layer address, if
 				      (setf (fill-pointer eval-buffer) 0
 					    eval-prev-seqno 0)))
 				  (setf (muerte::vector-element-type request)
-				    #.(bt:enum-value 'movitz::movitz-vector-element-type :u8))))
+				    #.(binary-types:enum-value 'movitz::movitz-vector-element-type :u8))))
 			      #+ignore
 			      (warn "UDP src ~D, dst ~D, len ~D"
 				    (udp-header-source request)

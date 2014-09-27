@@ -131,9 +131,9 @@ octets of EAX, EBX, EDX, and ECX, also in little-endian order."
 		(:movl (:esp #.(cl:* 4 (cl:- 16 2))) :ebx)
 		(:movb 16 :cl)
 		(:load-constant muerte.cl::values :edx)
-		(:movl (:edx #.(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value))
+		(:movl (:edx #.(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value))
 		       :esi)		; load new funobj from symbol into ESI
-		(:call (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))))))
+		(:call (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))))))
       (do-it))))
 
 

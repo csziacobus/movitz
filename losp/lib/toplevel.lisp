@@ -61,5 +61,3 @@
 						     (and (gethash x *toplevel-commands*)
 							  t)))))
 	     (values)))))))
-
-

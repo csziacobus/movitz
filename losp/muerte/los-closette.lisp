@@ -803,7 +803,7 @@ knowing there are EQL specialized methods."
 	(apply gf args))
        #+ignore
        ((and (functionp x)
-	     (= #.(bt:enum-value 'movitz:movitz-funobj-type :method-function)))
+	     (= #.(binary-types:enum-value 'movitz:movitz-funobj-type :method-function)))
 	(apply x args))			; This GF is a :no-clos-fallback, so call it.
        (t (check-type x function)
 	  (let ((*forward-generic-function* gf))

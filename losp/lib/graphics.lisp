@@ -17,12 +17,12 @@
 (defpackage #:muerte.graphics
   (:use #:common-lisp #:muerte)
   (:export #:color-pack
-		   #:graphics-surface
-		   #:make-graphics-surface
-		   #:copy-graphics-surface
-		   #:pixel
-		   #:line
-		   #:circle))
+           #:graphics-surface
+           #:make-graphics-surface
+           #:copy-graphics-surface
+           #:pixel
+           #:line
+           #:circle))
 
 (provide :lib/graphics)
 

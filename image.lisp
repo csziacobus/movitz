@@ -442,7 +442,7 @@
 (defun atomically-continuation-simple-pf (pf-name)
   (ldb (byte 32 0) (global-constant-offset pf-name))
   #+ignore
-  (bt:enum-value 'movitz::atomically-status
+  (binary-types:enum-value 'movitz::atomically-status
 		 (list* :restart-primitive-function
 			(cons :reset-status-p
 			      (if reset-status-p 1 0))
@@ -450,7 +450,7 @@
 			      (if (not pf-name)
 				  0
 				(truncate (+ (tag :null)
-					     (bt:slot-offset 'movitz-run-time-context
+					     (binary-types:slot-offset 'movitz-run-time-context
 							     (intern (symbol-name pf-name)
 								     :movitz)))
 					  4)))
@@ -461,7 +461,7 @@
   (assert (null registers))
   (lambda (jumper)
     (assert (= 0 (mod jumper 4)))
-    (bt:enum-value 'movitz::atomically-status
+    (binary-types:enum-value 'movitz::atomically-status
 		   (list* :restart-jumper
 			  (cons :reset-status-p
 				(if reset-status-p 1 0))
@@ -585,7 +585,7 @@
 
 (defun class-object-offset (name)
   (let ((name (translate-program name :cl :muerte.cl)))
-    (+ (bt:slot-offset 'movitz-basic-vector 'data)
+    (+ (binary-types:slot-offset 'movitz-basic-vector 'data)
        (* 4 (1+ (or (position name (image-classes-map *image*))
 		    (error "No class named ~S in class-map." name)))))))
 
@@ -747,7 +747,7 @@ a cons is an offset (the car) from some other code-vector (the cdr)."
 
 (defun make-initial-segment-descriptor-table ()
   (let ((u32-list
-	 (let ((bt:*endian* :little-endian))
+	 (let ((binary-types:*endian* :little-endian))
 	   (merge-bytes (with-binary-output-to-list (octet-list)
 			  (mapcar (lambda (init-args)
 				    (write-binary 'segment-descriptor octet-list
@@ -1258,8 +1258,8 @@ In sum this accounts for ~,1F%, or ~D bytes.~%;;~%"
 
 (defun run-time-context-find-slot (offset)
   "Return the name of the run-time-context slot located at offset."
-  (dolist (slot-name (bt:binary-record-slot-names 'movitz-run-time-context))
-    (when (= offset (bt:slot-offset 'movitz-run-time-context slot-name))
+  (dolist (slot-name (binary-types:binary-record-slot-names 'movitz-run-time-context))
+    (when (= offset (binary-types:slot-offset 'movitz-run-time-context slot-name))
       (return slot-name))))
 
 #-ia-x86
@@ -1824,9 +1824,9 @@ In sum this accounts for ~,1F%, or ~D bytes.~%;;~%"
 					   'muerte::*initial-segment-descriptor-table* 'word)
 					  (image-ds-segment-base *image*))
 				      :ecx)
-			       (:movl (:ecx ,(bt:slot-offset 'movitz-symbol 'value))
+			       (:movl (:ecx ,(binary-types:slot-offset 'movitz-symbol 'value))
 				      :ecx)
-			       (:addl ,(+ (bt:slot-offset 'movitz-basic-vector 'data)
+			       (:addl ,(+ (binary-types:slot-offset 'movitz-basic-vector 'data)
 					  (image-ds-segment-base *image*))
 				      :ecx)
 			       (:movl :ecx (:esp -4))
@@ -1871,7 +1871,7 @@ In sum this accounts for ~,1F%, or ~D bytes.~%;;~%"
 				      :eax)
 			       ;; (:compile-form (:result-mode :eax) 'muerte::*multiboot-data*)
 			       ;; (:shll ,+movitz-fixnum-shift+ :ebx)
-			       (:movl :ebx (:eax ,(bt:slot-offset 'movitz-symbol 'value)))
+			       (:movl :ebx (:eax ,(binary-types:slot-offset 'movitz-symbol 'value)))
 			      no-multiboot)
 			       			       ;; Check that the stack works..
 ;;;			       (:pushl #xabbabeef)

@@ -40,15 +40,15 @@ that the msb isn't zero. DO NOT APPLY TO NON-BIGNUM VALUES!"
 	   shrink-loop
 	    (:cmpl 4 :ecx)
 	    (:je 'shrink-no-more)
-	    (:cmpl 0 (:eax :ecx ,(+ -4 (bt:slot-offset 'movitz:movitz-bignum 'movitz::bigit0))))
+	    (:cmpl 0 (:eax :ecx ,(+ -4 (binary-types:slot-offset 'movitz:movitz-bignum 'movitz::bigit0))))
 	    (:jnz 'shrink-done)
 	    (:subl 4 :ecx)
 	    (:jmp 'shrink-loop)
 	   shrink-no-more
 	    (:cmpl ,(1+ movitz:+movitz-most-positive-fixnum+)
-		   (:eax ,(bt:slot-offset 'movitz:movitz-bignum 'movitz::bigit0)))
+		   (:eax ,(binary-types:slot-offset 'movitz:movitz-bignum 'movitz::bigit0)))
 	    (:jc '(:sub-program (fixnum-result)
-		   (:movl (:eax ,(bt:slot-offset 'movitz:movitz-bignum 'movitz::bigit0))
+		   (:movl (:eax ,(binary-types:slot-offset 'movitz:movitz-bignum 'movitz::bigit0))
 		    :ecx)
 		   (:leal ((:ecx ,movitz:+movitz-fixnum-factor+)) :eax)
 		   (:jmp 'done)))
@@ -57,7 +57,7 @@ that the msb isn't zero. DO NOT APPLY TO NON-BIGNUM VALUES!"
 	    (:jnz '(:sub-program () (:int 63)))
 	    (:testw :cx :cx)
 	    (:jz '(:sub-program () (:int 63)))
-	    (:movw :cx (:eax ,(bt:slot-offset 'movitz:movitz-bignum 'movitz::length)))
+	    (:movw :cx (:eax ,(binary-types:slot-offset 'movitz:movitz-bignum 'movitz::length)))
 	   done
 	    )))
     (do-it)))
@@ -186,30 +186,30 @@ that the msb isn't zero. DO NOT APPLY TO NON-BIGNUM VALUES!"
 	 `(with-inline-assembly (:returns :eax :labels (add-bignum-loop add-bignum-done))
 	    (:load-lexical (:lexical-binding delta) :ecx)
 	    (:load-lexical (:lexical-binding bignum) :eax)
-	    (:movzxw (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::length)) :ebx) ; length
+	    (:movzxw (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::length)) :ebx) ; length
 	    (:xorl :edx :edx)		; counter
 	    (:sarl ,movitz:+movitz-fixnum-shift+ :ecx)
 	    (:jns 'positive-delta)
 	    ;; negative-delta
 	    (:negl :ecx)
-	    (:subl :ecx (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
+	    (:subl :ecx (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
 	    (:jnc 'add-bignum-done)
 	   sub-bignum-loop
 	    (:addl 4 :edx)
 	    (:cmpl :edx :ebx)
 	    (:je '(:sub-program (overflow) (:int 4)))
-	    (:subl 1 (:eax :edx ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
+	    (:subl 1 (:eax :edx ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
 	    (:jc 'sub-bignum-loop)
 	    (:jmp 'add-bignum-done)
 	    
 	   positive-delta
-	    (:addl :ecx (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
+	    (:addl :ecx (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
 	    (:jnc 'add-bignum-done)
 	   add-bignum-loop
 	    (:addl 4 :edx)
 	    (:cmpl :edx :ebx)
 	    (:je '(:sub-program (overflow) (:int 4)))
-	    (:addl 1 (:eax :edx ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
+	    (:addl 1 (:eax :edx ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0)))
 	    (:jc 'add-bignum-loop)
 	   add-bignum-done)))
     (do-it)))

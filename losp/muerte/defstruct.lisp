@@ -101,13 +101,13 @@ Parameters: struct-name."
     (:cmpb #.(movitz:tag :defstruct) (:eax #.movitz:+other-type-offset+))
     (:jne 'type-error)
 ;;     (:load-constant struct-name :ebx)
-;;;    (:cmpl :ebx (:eax #.(bt:slot-offset 'movitz::movitz-struct 'movitz::name)))
+;;;    (:cmpl :ebx (:eax #.(binary-types:slot-offset 'movitz::movitz-struct 'movitz::name)))
 ;;;    (:jne '(:sub-program (type-error) (:int 66)))
     ;; type test passed, read slot
     (:load-constant slot-number :ecx)
 ;;;    (:shrl #.movitz::+movitz-fixnum-shift+ :ecx)
     (#.movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-     :movl (:eax (:ecx 1) #.(bt:slot-offset 'movitz::movitz-struct 'movitz::slot0))
+     :movl (:eax (:ecx 1) #.(binary-types:slot-offset 'movitz::movitz-struct 'movitz::slot0))
 	   :eax)))
 
 (defun (setf struct-accessor-prototype) (value obj)
@@ -129,7 +129,7 @@ Parameters: struct-name."
     (:load-constant slot-number :ecx)
 ;;;    (:shrl #.movitz::+movitz-fixnum-shift+ :ecx)
     (#.movitz:*compiler-nonlocal-lispval-write-segment-prefix*
-     :movl :eax (:ebx (:ecx 1) #.(bt:slot-offset 'movitz::movitz-struct 'movitz::slot0)))))
+     :movl :eax (:ebx (:ecx 1) #.(binary-types:slot-offset 'movitz::movitz-struct 'movitz::slot0)))))
 
 (defun list-struct-accessor-prototype (s)
   (nth 'slot-number s))

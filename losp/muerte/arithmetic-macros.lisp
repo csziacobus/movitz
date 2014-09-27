@@ -395,7 +395,7 @@
 		   (:cmpl ,(dpb 4 (byte 16 16) (movitz:tag :bignum 0))
 			  (:eax ,movitz:+other-type-offset+))
 		   (:jne 'nix)
-		   (:movl (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0))
+		   (:movl (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0))
 			  :ecx)
 		   (:testl ,(logxor #xffffffff (mask-field (byte size 0) -1))
 			   :ecx)

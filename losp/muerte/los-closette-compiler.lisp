@@ -595,11 +595,11 @@
     (declare (ignore all-keys))
     (let ((class (std-allocate-instance metaclass)))
       (setf (std-slot-value class 'size)
-	(or size (bt:sizeof 'movitz::movitz-run-time-context)))
+	(or size (binary-types:sizeof 'movitz::movitz-run-time-context)))
       (setf (std-slot-value class 'slot-map)
 	(or slot-map
 	    (movitz::slot-map 'movitz::movitz-run-time-context
-			      (cl:+ (bt:slot-offset 'movitz::movitz-run-time-context
+			      (cl:+ (binary-types:slot-offset 'movitz::movitz-run-time-context
 						    'movitz::run-time-context-start)
 				    0))))
       (setf (std-slot-value class 'plist) plist)

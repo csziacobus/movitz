@@ -68,7 +68,7 @@
 				  (procfs-var (gensym))
 				  (image-var '*image*))
 			    &body body)
-  `(let ((bt:*endian* :little-endian)
+  `(let ((binary-types:*endian* :little-endian)
 	 (pid (bochs-parameter :pid ,path)))
      (procfs:with-procfs-attached (,procfs-var pid :direction :io)
        (let ((,image-var (make-instance 'bochs-image

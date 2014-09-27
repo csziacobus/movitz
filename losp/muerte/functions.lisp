@@ -333,7 +333,7 @@ represented as that vector."
   #+ignore
   (with-inline-assembly (:returns :eax)
     (:compile-two-forms (:eax :ebx) num-jumpers funobj)
-    (:movw :ax (:ebx #.(bt:slot-offset 'movitz:movitz-funobj 'movitz::num-jumpers)))))
+    (:movw :ax (:ebx #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz::num-jumpers)))))
 
 (defun funobj-constant-ref (funobj index)
   (check-type funobj function)
@@ -347,9 +347,9 @@ represented as that vector."
     (with-inline-assembly (:returns :eax)
       (:compile-two-forms (:eax :ecx) funobj index)
       (:movl #.movitz:+code-vector-transient-word+ :ebx)
-      (:addl (:eax #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector))
+      (:addl (:eax #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector))
 	     :ebx)			; code-vector (word) into ebx
-      (:subl (:eax :ecx #.(bt:slot-offset 'movitz:movitz-funobj 'movitz::constant0))
+      (:subl (:eax :ecx #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz::constant0))
 	     :ebx)
       (:negl :ebx)
       (:leal ((:ebx #.movitz:+movitz-fixnum-factor+)) :eax))))
@@ -370,11 +370,11 @@ represented as that vector."
 	 (:compile-two-forms (:eax :edx) funobj index)
 	 (:compile-form (:result-mode :ecx) value)
 	 (:movl #.movitz:+code-vector-transient-word+ :ebx)
-	 (:addl (:eax #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector))
+	 (:addl (:eax #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector))
 		:ebx)			; code-vector (word) into ebx
 	 (:shrl #.movitz:+movitz-fixnum-shift+ :ecx) ; value
-	 (:movl :ecx (:eax :edx #.(bt:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))
-	 (:addl :ebx (:eax :edx #.(bt:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))))
+	 (:movl :ecx (:eax :edx #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))
+	 (:addl :ebx (:eax :edx #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))))
       value)))
 
 (defun funobj-debug-info (funobj)
@@ -428,7 +428,7 @@ represented as that vector."
 			   (:cmpl :ebx :edx)
 			   (:ja 'init-loop)
 			   init-done
-			   (:leal (:edx ,(bt:sizeof 'movitz:movitz-funobj)) :ecx))))
+			   (:leal (:edx ,(binary-types:sizeof 'movitz:movitz-funobj)) :ecx))))
 		   (do-it))))
     (setf (funobj-name funobj) name
 	  (funobj-code-vector funobj) code-vector
@@ -509,5 +509,5 @@ so that we can be reasonably sure of dst's size."
                                                (verify-macroexpand-call edx name extras-p)
                                                (funcall expander form env)))))
     (setf (funobj-type macro-function)
-          #.(bt:enum-value 'movitz::movitz-funobj-type :macro-function))
+          #.(binary-types:enum-value 'movitz::movitz-funobj-type :macro-function))
     macro-function))

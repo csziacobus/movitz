@@ -351,7 +351,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 						   :init-with-type ,(type-specifier-primary type))))))))
 				   (t init-code)))
 			    (when (plusp (num-specials local-env))
-			      `((:locally (:call (:edi ,(bt:slot-offset 'movitz-run-time-context
+			      `((:locally (:call (:edi ,(binary-types:slot-offset 'movitz-run-time-context
 									'dynamic-variable-install))))
 				(:locally (:movl :esp (:edi (:edi-offset dynamic-env))))))
 			    body-code
@@ -361,7 +361,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 			      (warn "let spec ret: ~S, want: ~S ~S"
 				    body-returns result-mode let-var-specs)
 			      `((:movl (:esp ,(+ -4 (* 16 (num-specials local-env)))) :edx)
-				(:locally (:call (:edi ,(bt:slot-offset 'movitz-run-time-context
+				(:locally (:call (:edi ,(binary-types:slot-offset 'movitz-run-time-context
 									'dynamic-variable-uninstall))))
 				(:locally (:movl :edx (:edi (:edi-offset dynamic-env))))
 				(:leal (:esp ,(* 16 (num-specials local-env))) :esp))))))
@@ -1014,7 +1014,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 			       (t :eax))))
 	       (compiler-values ()
 		 :code `((:load-constant ,movitz-name ,register)
-			 (:movl (,register ,(bt:slot-offset 'movitz-symbol 'function-value))
+			 (:movl (,register ,(binary-types:slot-offset 'movitz-symbol 'function-value))
 				,register)
 			 (:globally (:cmpl (:edi (:edi-offset unbound-function))
 					   ,register))
@@ -1181,7 +1181,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 			  ,no-more-symbols
 			  (:popl :eax)	; remove extra pre-pushed tail
 			  (:movl :ecx :edx)
-			  (:locally (:call (:edi ,(bt:slot-offset 'movitz-run-time-context
+			  (:locally (:call (:edi ,(binary-types:slot-offset 'movitz-run-time-context
 								  'dynamic-variable-install))))
 			  (:locally (:movl :esp (:edi (:edi-offset dynamic-env)))) ; install env
 			  ;; ecx = N/fixnum
@@ -1194,7 +1194,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 			`((:popl :eax))) ; glue :push => :eax
 		      `((:movl (:esp) :edx) ; number of bindings
 			(:movl (:esp (:edx 4)) :edx) ; previous dynamic-env
-			(:locally (:call (:edi ,(bt:slot-offset 'movitz-run-time-context
+			(:locally (:call (:edi ,(binary-types:slot-offset 'movitz-run-time-context
 								'dynamic-variable-uninstall))))
 			(:locally (:movl :edx (:edi (:edi-offset dynamic-env))))
 			(:popl :edx)	; number of bindings

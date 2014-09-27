@@ -35,19 +35,19 @@
   "Call a function with 1 argument"
   (with-inline-assembly (:returns :nothing)
     (:movb 1 :cl)
-    (:jmp (:esi #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
+    (:jmp (:esi #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
 
 (define-primitive-function trampoline-funcall%2op ()
   "Call a function with 2 arguments"
   (with-inline-assembly (:returns :nothing)
     (:movb 2 :cl)
-    (:jmp (:esi #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
+    (:jmp (:esi #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
 
 (define-primitive-function trampoline-funcall%3op ()
   "Call a function with 3 arguments"
   (with-inline-assembly (:returns :nothing)
     (:movb 3 :cl)
-    (:jmp (:esi #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
+    (:jmp (:esi #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector)))))
 
 (define-primitive-function trampoline-cl-dispatch-1or2 ()
   "Jump to the entry-point designated by :cl, which must be 1 or 2."
@@ -55,7 +55,7 @@
     (:subb 1 :cl)			; 1 or 2 => 0 or 1
     (:testb #xfe :cl)
     (:jnz 'mismatch)
-    (:jmp (:esi (:ecx 4) #.(bt:slot-offset 'movitz:movitz-funobj 'movitz:code-vector%1op)))
+    (:jmp (:esi (:ecx 4) #.(binary-types:slot-offset 'movitz:movitz-funobj 'movitz:code-vector%1op)))
    mismatch
     (:addb 1 :cl)
     (:int 100)))
@@ -444,7 +444,7 @@ BUFFER-SIZE is the number of words in the buffer."
 	    (:jnz 'fail)
 	    (:cmpb ,(movitz:tag :bignum) (:eax ,movitz:+other-type-offset+))
 	    (:jne 'fail)
-	    (:movl (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::bigit0))
+	    (:movl (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::bigit0))
 		   :ecx)
 	    (:ret)
 	   fail
@@ -502,7 +502,7 @@ BUFFER-SIZE is the number of words in the buffer."
     (:cmpb #.(movitz:tag :character) :al)
     (:jne '(:sub-program ()
 	    (:globally (:movl (:edi (:edi-offset complicated-class-of)) :esi))
-	    (:jmp (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))))
+	    (:jmp (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))))
     (:movl (:ebx #.(movitz::class-object-offset 'character)) :eax)
     (:ret)))
 
@@ -528,15 +528,15 @@ BUFFER-SIZE is the number of words in the buffer."
 	    (:cmpb ,(movitz:tag :std-instance) :cl)
 	    (:jne 'not-std-instance)
 	    (,movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-	     :movl (:eax ,(bt:slot-offset 'movitz::movitz-std-instance 'movitz::class)) :eax)
+	     :movl (:eax ,(binary-types:slot-offset 'movitz::movitz-std-instance 'movitz::class)) :eax)
 	    (:ret)
 	   not-std-instance
 	    (:cmpw ,(+ (movitz:tag :funobj)
-		       (ash (bt:enum-value 'movitz::movitz-funobj-type :generic-function) 8))
+		       (ash (binary-types:enum-value 'movitz::movitz-funobj-type :generic-function) 8))
 		   :cx)
 	    (:jne 'not-std-gf-instance)
 	    (,movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-	     :movl (:eax ,(bt:slot-offset 'movitz::movitz-funobj-standard-gf
+	     :movl (:eax ,(binary-types:slot-offset 'movitz::movitz-funobj-standard-gf
 					  'movitz::standard-gf-class))
 		   :eax)
 	    (:ret)
@@ -559,7 +559,7 @@ BUFFER-SIZE is the number of words in the buffer."
 	    (:ret)
 	   not-bignum
 	    (:globally (:movl (:edi (:edi-offset complicated-class-of)) :esi))
-	    (:jmp (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
+	    (:jmp (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
     (do-it)))
 
 (defun complicated-class-of (object)
@@ -674,11 +674,11 @@ The number of values (untagged) is returned in ECX, even if CF=0."
   (with-inline-assembly (:returns :multiple-values)
     (:cmpb 1 :cl)
     (:jne 'not-one)
-    (:jmp (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))
+    (:jmp (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))
    not-one
     (:cmpb 2 :cl)
     (:jne 'not-two)
-    (:jmp (:esi #.(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
+    (:jmp (:esi #.(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
    not-two
     (:int 100)))
 

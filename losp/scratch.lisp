@@ -878,7 +878,7 @@ Can be used to measure the overhead of primitive function."
   (with-inline-assembly (:returns :eax)
     (:load-lexical (:lexical-binding x) :eax)
     (:% :bytes 8 #xff #x97)		; (:call-local-pf ret-trampoline)
-    (:% :bytes 32 #.(bt:slot-offset 'movitz::movitz-run-time-context 'movitz::ret-trampoline))))
+    (:% :bytes 32 #.(binary-types:slot-offset 'movitz::movitz-run-time-context 'movitz::ret-trampoline))))
 
 (defun my-test-labels (x)
   (labels (#+ignore (p () (print x))

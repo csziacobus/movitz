@@ -417,7 +417,7 @@ respect to multiple threads."
 (define-compiler-macro %bignum-bigits (x)
   `(with-inline-assembly (:returns :eax :type (unsigned-byte 14))
      (:compile-form (:result-mode :eax) ,x)
-     (:movzxw (:eax ,(bt:slot-offset 'movitz::movitz-bignum 'movitz::length))
+     (:movzxw (:eax ,(binary-types:slot-offset 'movitz::movitz-bignum 'movitz::length))
 	      :eax)
      (:testb 3 :al)			; Just to be sure..
      (:jnz '(:sub-program () (:int 63)))))
@@ -432,7 +432,7 @@ respect to multiple threads."
   (if (not (movitz:movitz-constantp slot-name env))
       form
     (let* ((slot-name (movitz::eval-form slot-name env))
-	   (slot-type (bt:binary-slot-type 'movitz::movitz-run-time-context
+	   (slot-type (binary-types:binary-slot-type 'movitz::movitz-run-time-context
 					   (intern (symbol-name slot-name) :movitz))))
       (if (or (and (movitz:movitz-constantp context env)
 		   (eq nil (movitz:movitz-eval context env)))
@@ -474,7 +474,7 @@ respect to multiple threads."
   (if (not (movitz:movitz-constantp slot-name env))
       form
     (let* ((slot-name (movitz::eval-form slot-name env))
-	   (slot-type (bt:binary-slot-type 'movitz::movitz-run-time-context
+	   (slot-type (binary-types:binary-slot-type 'movitz::movitz-run-time-context
 					   (intern (symbol-name slot-name) :movitz))))
       (if (or (and (movitz:movitz-constantp context env)
 		   (eq nil (movitz:movitz-eval context env)))
@@ -491,7 +491,7 @@ respect to multiple threads."
 	    (movitz:code-vector-word
 	     `(with-inline-assembly (:returns :eax)
 		(:compile-form (:result-mode :eax) ,value)
-		(:leal (:eax ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)) :ecx)
+		(:leal (:eax ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)) :ecx)
 		(:locally (:movl :ecx (:edi (:edi-offset ,slot-name)))))))
 	;; FIXME
 	form))))

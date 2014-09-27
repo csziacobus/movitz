@@ -27,8 +27,8 @@
 
 (defmacro/cross-compilation vector-double-dispatch ((s1 s2) &rest clauses)
   (flet ((make-double-dispatch-value (et1 et2)
-	   (+ (* #x100 (bt:enum-value 'movitz::movitz-vector-element-type et1))
-	      (bt:enum-value 'movitz::movitz-vector-element-type et2))))
+	   (+ (* #x100 (binary-types:enum-value 'movitz::movitz-vector-element-type et1))
+	      (binary-types:enum-value 'movitz::movitz-vector-element-type et2))))
     `(case (+ (ash (vector-element-type-code ,s1) 8)
 	      (vector-element-type-code ,s2))
        ,@(mapcar (lambda (clause)
@@ -54,7 +54,7 @@
 (define-compiler-macro vector-element-type-code (object)
   `(let ((x (memref ,object (movitz-type-slot-offset 'movitz-basic-vector 'element-type)
 		    :type :unsigned-byte8)))
-     (if (/= x ,(bt:enum-value 'movitz::movitz-vector-element-type :indirects))
+     (if (/= x ,(binary-types:enum-value 'movitz::movitz-vector-element-type :indirects))
 	 x
        (memref ,object (movitz-type-slot-offset 'movitz-basic-vector 'fill-pointer)
 	       :index 1 :type :unsigned-byte8))))
@@ -70,19 +70,19 @@
 
 (defun array-element-type (array)
   (ecase (vector-element-type-code array)
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :any-t)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :any-t)
        t)
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :character)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :character)
        'character)
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :u8)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u8)
        '(unsigned-byte 8))
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :u16)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u16)
        '(unsigned-byte 16))
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :u32)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u32)
        '(unsigned-byte 32))
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :bit)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :bit)
        'bit)
-    (#.(bt:enum-value 'movitz::movitz-vector-element-type :code)
+    (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :code)
        'code)))
 
 (defun upgraded-array-element-type (type-specifier &optional environment)
@@ -160,7 +160,7 @@
   `(with-inline-assembly (:returns :boolean-zf=1)
      (:compile-form (:result-mode :eax) ,vector)
      (:testl ,(logxor #xffffffff (* movitz:+movitz-fixnum-factor+ (1- (expt 2 14))))
-	     (:eax ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))))
+	     (:eax ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))))
 
 (define-compiler-macro %basic-vector-fill-pointer (vector)
   "Return the basic-vector's fill-pointer. The result is only valid if
@@ -168,7 +168,7 @@
   `(with-inline-assembly (:returns :register)
      (:compile-form (:result-mode :register) ,vector)
      (:movzxw ((:result-register)
-	       ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::fill-pointer))
+	       ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::fill-pointer))
 	      (:result-register))))
 
 (defun array-has-fill-pointer-p (array)
@@ -195,19 +195,19 @@
 		  (memref vector (movitz-type-slot-offset 'movitz-basic-vector 'num-elements)))))
     (ecase (memref vector (movitz-type-slot-offset 'movitz-basic-vector 'element-type)
 		   :type :unsigned-byte8)
-      ((#.(bt:enum-value 'movitz::movitz-vector-element-type :any-t)
-	#.(bt:enum-value 'movitz::movitz-vector-element-type :indirects))
+      ((#.(binary-types:enum-value 'movitz::movitz-vector-element-type :any-t)
+	#.(binary-types:enum-value 'movitz::movitz-vector-element-type :indirects))
        (%shallow-copy-object vector (+ 2 length)))
-      ((#.(bt:enum-value 'movitz::movitz-vector-element-type :u32)
-	  #.(bt:enum-value 'movitz::movitz-vector-element-type :stack))
+      ((#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u32)
+	  #.(binary-types:enum-value 'movitz::movitz-vector-element-type :stack))
        (%shallow-copy-non-pointer-object vector (+ 2 length)))
-      ((#.(bt:enum-value 'movitz::movitz-vector-element-type :character)
-	  #.(bt:enum-value 'movitz::movitz-vector-element-type :u8)
-	  #.(bt:enum-value 'movitz::movitz-vector-element-type :code))
+      ((#.(binary-types:enum-value 'movitz::movitz-vector-element-type :character)
+	  #.(binary-types:enum-value 'movitz::movitz-vector-element-type :u8)
+	  #.(binary-types:enum-value 'movitz::movitz-vector-element-type :code))
        (%shallow-copy-non-pointer-object vector	(+ 2 (truncate (+ 3 length) 4))))
-      ((#.(bt:enum-value 'movitz::movitz-vector-element-type :u16))
+      ((#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u16))
        (%shallow-copy-non-pointer-object vector (+ 2 (truncate (+ 1 length) 2))))
-      ((#.(bt:enum-value 'movitz::movitz-vector-element-type :bit))
+      ((#.(binary-types:enum-value 'movitz::movitz-vector-element-type :bit))
        (%shallow-copy-non-pointer-object vector (+ 2 (truncate (+ 31 length) 32)))))))
 
 (defun (setf fill-pointer) (new-fill-pointer vector)
@@ -328,7 +328,7 @@
 		    basic-vector-dispatcher
 		    ,(loop with x = (make-list 9 :initial-element 'unknown)
 			for et in '(:any-t :character :u8 :u32 :stack :code :bit)
-			do (setf (elt x (bt:enum-value
+			do (setf (elt x (binary-types:enum-value
 					  'movitz::movitz-vector-element-type
 					  et))
 			      et)
@@ -342,7 +342,7 @@
 		   (:shrl 8 :ecx)
 		   (:andl 7 :ecx)
 		   (:cmpl :ebx
-			  (:eax ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
+			  (:eax ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
 		   (:jbe '(:sub-program (out-of-bounds)
 			   (:compile-form (:result-mode :ignore)
 			    (error "Index ~D is beyond vector length ~D."
@@ -350,20 +350,20 @@
 			     (memref array
 			      (movitz-type-slot-offset 'movitz-basic-vector 'num-elements))))))
 		   (:jmp (:esi (:ecx 4) 'basic-vector-dispatcher
-			       ,(bt:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))
+			       ,(binary-types:slot-offset 'movitz:movitz-funobj 'movitz::constant0)))
 		   
 		   (:jnever '(:sub-program (unknown)
 			      (:int 100)))
 		  :u32
 		  :stack
-		   (:movl (:eax :ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
+		   (:movl (:eax :ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
 			  :ecx)
 		   (:call-local-pf box-u32-ecx)
 		   (:jmp 'return)
 		  :u8 :code
 		   (:movl :ebx :ecx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
-		   (:movzxb (:eax :ecx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
+		   (:movzxb (:eax :ecx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
 			    :ecx)
 		   (:leal ((:ecx ,movitz:+movitz-fixnum-factor+)) :eax)
 		   (:jmp 'return)
@@ -372,7 +372,7 @@
 		   (:movl :eax :ebx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
 		   (:movl ,(movitz:tag :character) :eax)
-		   (:movb (:ebx :ecx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
+		   (:movb (:ebx :ecx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
 			  :ah)
 		   (:jmp 'return)
 		  :bit
@@ -380,13 +380,13 @@
 		   (:movl :eax :ebx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
 		   (:xorl :eax :eax)
-		   (:btl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jnc 'return)
 		   (:addl ,movitz:+movitz-fixnum-factor+ :eax)
 		   (:jmp 'return)
 		  :any-t
 		   (,movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-		    :movl (:eax :ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
+		    :movl (:eax :ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data))
 			  :eax)
 		  return)))
 	   (do-it)))))
@@ -421,7 +421,7 @@
                            (:movl :edx :eax)
                            (:load-constant index :edx)
 			   (:int 59)))
-		   (:cmpl (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
+		   (:cmpl (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
 			  :edx)
 		   (:jnc '(:sub-program (illegal-index)
 			   (:compile-form (:result-mode :ignore)
@@ -431,7 +431,7 @@
 		   (:jne 'not-any-t-vector)
 		   (,movitz:*compiler-nonlocal-lispval-write-segment-prefix*
 		    :movl :eax
-			  (:ebx :edx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+			  (:ebx :edx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 
 		  not-any-t-vector
@@ -444,7 +444,7 @@
 			   (:int 59)))
 		   (:movl :edx :ecx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
-		   (:movb :ah (:ebx :ecx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:movb :ah (:ebx :ecx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 
 		  not-character-vector
@@ -460,7 +460,7 @@
 		   (:shll ,(- 8 movitz:+movitz-fixnum-shift+) :eax)
 		   (:movl :edx :ecx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
-		   (:movb :ah (:ebx :ecx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:movb :ah (:ebx :ecx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:shrl ,(- 8 movitz:+movitz-fixnum-shift+) :eax)
 		   (:jmp 'return)
 
@@ -474,7 +474,7 @@
 		   (:jne 'not-u32-vector)
 		   (:call-local-pf unbox-u32)
 		   (:movl :ecx
-			  (:ebx :edx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+			  (:ebx :edx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 
 		  not-u32-vector
@@ -491,10 +491,10 @@
 		   
 		   (:testl :eax :eax)
 		   (:jnz 'set-one-bit)
-		   (:btrl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btrl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 		  set-one-bit
-		   (:btsl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btsl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 		   
 		  not-bit-vector
@@ -522,7 +522,7 @@
 ;;  (compiler-macro-call svref%unsafe simple-vector index))
   (with-inline-assembly (:returns :eax)
     (:compile-two-forms (:eax :ebx) simple-vector index)
-    (:movl (:eax :ebx #.(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)) :eax)))
+    (:movl (:eax :ebx #.(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)) :eax)))
 
 (defun (setf svref%unsafe) (value simple-vector index)
   (setf (svref%unsafe simple-vector index) value))
@@ -646,7 +646,7 @@
 			   (:compile-form (:result-mode :ignore)
 			    (error "Illegal index: ~S." index))))
 		   (:cmpl :ebx
-			  (:eax ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
+			  (:eax ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
 		   (:jbe '(:sub-program (out-of-bounds)
 			   (:compile-form (:result-mode :ignore)
 			    (error "Index ~D is beyond vector length ~D."
@@ -658,7 +658,7 @@
 		   (:movl :eax :ebx)
 		   (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
 		   (:xorl :eax :eax)
-		   (:btl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jnc 'return)
 		   (:addl ,movitz:+movitz-fixnum-factor+ :eax)
 		  return)))
@@ -680,7 +680,7 @@
 			(:compile-form (:result-mode :ignore)
 			 (error "Illegal index: ~S." index))))
 		(:cmpl :ebx
-		       (:eax ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
+		       (:eax ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements)))
 		(:jbe '(:sub-program (out-of-bounds)
 			(:compile-form (:result-mode :ignore)
 			 (error "Index ~D is beyond vector length ~D."
@@ -692,7 +692,7 @@
 		(:movl :eax :ebx)
 		(:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
 		(:xorl :eax :eax)
-		(:btl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		(:btl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		(:jnc 'return)
 		(:addl ,movitz:+movitz-fixnum-factor+ :eax)
 	       return)))
@@ -715,7 +715,7 @@
 	    (:movl :eax :ebx)
 	    (:shrl ,movitz:+movitz-fixnum-shift+ :ecx)
 	    (:xorl :eax :eax)
-	    (:btl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+	    (:btl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 	    (:jnc 'return)
 	    (:addl ,movitz:+movitz-fixnum-factor+ :eax)
 	   return)))
@@ -741,7 +741,7 @@
 		   (:jnz '(:sub-program (not-an-index)
 			   (:compile-form (:result-mode :ignore)
 			    (error "Not a vector index: ~S." index))))
-		   (:cmpl (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
+		   (:cmpl (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
 			  :edx)
 		   (:jnc '(:sub-program (illegal-index)
 			   (:compile-form (:result-mode :ignore)
@@ -751,10 +751,10 @@
 		   
 		   (:testl :eax :eax)
 		   (:jnz 'set-one-bit)
-		   (:btrl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btrl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		   (:jmp 'return)
 		  set-one-bit
-		   (:btsl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		   (:btsl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		  return)))
 	   (do-it)))))
    (t (value vector &rest subscripts)
@@ -774,7 +774,7 @@
 		(:jnz '(:sub-program (not-an-index)
 			(:compile-form (:result-mode :ignore)
 			 (error "Not a vector index: ~S." index))))
-		(:cmpl (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
+		(:cmpl (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::num-elements))
 		       :edx)
 		(:jnc '(:sub-program (illegal-index)
 			(:compile-form (:result-mode :ignore)
@@ -784,10 +784,10 @@
 		   
 		(:testl :eax :eax)
 		(:jnz 'set-one-bit)
-		(:btrl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		(:btrl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 		(:jmp 'return)
 	       set-one-bit
-		(:btsl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+		(:btsl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 	       return)))
 	(do-it)))
    (t (value vector &rest subscripts)
@@ -811,10 +811,10 @@
 		   
 	      (:testl :eax :eax)
 	      (:jnz 'set-one-bit)
-	      (:btrl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+	      (:btrl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 	      (:jmp 'return)
 	     set-one-bit
-	      (:btsl :ecx (:ebx ,(bt:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
+	      (:btsl :ecx (:ebx ,(binary-types:slot-offset 'movitz:movitz-basic-vector 'movitz::data)))
 	     return))))
     (do-it)))
 
@@ -872,17 +872,17 @@ and return basic-vector and accessors for that subsequence."
 		   (lambda (v a i) (setf (aref a (+ i offset)) v)))))))
     (vector
      (case (vector-element-type-code vector)
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :any-t)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :any-t)
 	  (values vector #'svref%unsafe #'(setf svref%unsafe)))
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :character)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :character)
 	  (values vector #'char%unsafe #'(setf char%unsafe)))
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :u8)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u8)
 	  (values vector #'u8ref%unsafe #'(setf u8ref%unsafe)))
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :u32)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :u32)
 	  (values vector #'u32ref%unsafe #'(setf u32ref%unsafe)))
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :code)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :code)
 	(values vector #'u8ref%unsafe #'(setf u8ref%unsafe)))
-       (#.(bt:enum-value 'movitz::movitz-vector-element-type :bit)
+       (#.(binary-types:enum-value 'movitz::movitz-vector-element-type :bit)
 	  (values vector #'bitref%unsafe #'(setf bitref%unsafe)))
        (t (warn "don't know about vector's element-type: ~S" vector)
 	  (values vector #'aref #'(setf aref)))))))
@@ -1130,7 +1130,7 @@ and return basic-vector and accessors for that subsequence."
 (defun make-indirect-vector (displaced-to displaced-offset fill-pointer length)
   (let ((x (make-basic-vector%t 4 0 nil nil)))
     (setf (vector-element-type-code x)
-      #.(bt:enum-value 'movitz::movitz-vector-element-type :indirects))
+      #.(binary-types:enum-value 'movitz::movitz-vector-element-type :indirects))
     (set-indirect-vector x displaced-to displaced-offset 
 			 (vector-element-type-code displaced-to)
 			 fill-pointer length)))
@@ -1310,12 +1310,12 @@ and return basic-vector and accessors for that subsequence."
 	       (bvref-u16-fallback ,var ,offset ,index)
 	     (with-inline-assembly (:returns :untagged-fixnum-ecx)
 	       (:compile-two-forms (:eax :ecx) ,var ,offset)
-	       (:cmpl (:eax ,(bt:slot-offset 'movitz::movitz-basic-vector
+	       (:cmpl (:eax ,(binary-types:slot-offset 'movitz::movitz-basic-vector
 					     'movitz::num-elements))
 		      :ecx)
 	       (:jnc '(:sub-program () (:int 69)))
 	       (:shrl ,movitz::+movitz-fixnum-shift+ :ecx)
-	       (:movw (:eax :ecx ,(+ actual-index (bt:slot-offset 'movitz::movitz-basic-vector
+	       (:movw (:eax :ecx ,(+ actual-index (binary-types:slot-offset 'movitz::movitz-basic-vector
 								  'movitz::data)))
 		      :cx)
 	       (:xchgb :cl :ch))))))))

@@ -73,13 +73,13 @@
   (setf (symbol-value symbol) value))
 
 (define-compiler-macro %symbol-global-value (symbol)
-  `(memref ,symbol ,(bt:slot-offset 'movitz:movitz-symbol 'movitz::value)))
+  `(memref ,symbol ,(binary-types:slot-offset 'movitz:movitz-symbol 'movitz::value)))
 
 (defun %symbol-global-value (symbol)
   (%symbol-global-value symbol))
 
 (define-compiler-macro (setf %symbol-global-value) (value symbol)
-  `(setf (memref ,symbol ,(bt:slot-offset 'movitz:movitz-symbol 'movitz::value))
+  `(setf (memref ,symbol ,(binary-types:slot-offset 'movitz:movitz-symbol 'movitz::value))
      ,value))
 
 (defun (setf %symbol-global-value) (value symbol)
@@ -205,7 +205,7 @@
 
 (defun symbol-flags (symbol)
   (etypecase symbol
-    (null #.(bt:enum-value 'movitz::movitz-symbol-flags '(:constant-variable)))
+    (null #.(binary-types:enum-value 'movitz::movitz-symbol-flags '(:constant-variable)))
     (symbol
      (memref symbol (movitz-type-slot-offset 'movitz-symbol 'flags)
 	     :type :unsigned-byte16))))

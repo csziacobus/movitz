@@ -89,7 +89,7 @@
 (defparameter +scan-skip-word+ #x00000003)
 
 (defun tag (type &optional (wide-tag 0))
-  (logior (bt:enum-value 'other-type-byte type)
+  (logior (binary-types:enum-value 'other-type-byte type)
 	  (ash wide-tag 8)))
 
 (defun tag-name (number)
@@ -105,7 +105,7 @@
 (defun slot-map (type &optional (offset 0))
   (let ((slots (binary-record-slot-names type)))
     (loop for slot in slots
-	as o = (- (bt:slot-offset type slot) offset)
+	as o = (- (binary-types:slot-offset type slot) offset)
 	collect (list (intern (symbol-name slot) :muerte)
 		      (intern (symbol-name (binary-slot-type type slot)) :muerte)
 		      (truncate o 4)

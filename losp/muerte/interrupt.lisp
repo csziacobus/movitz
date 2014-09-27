@@ -184,7 +184,7 @@ is off, e.g. because this interrupt/exception is routed through an interrupt gat
 	    (:movl (:eax 2 (:ecx 4)) :esi) ; funobj at (aref ECX exception-handlers) into :esi
 	    (:movl :ebp :ebx)		; pass dit-frame as arg1
 	    (:leal ((:ecx ,movitz:+movitz-fixnum-factor+)) :eax) ; pass interrupt number as arg 0.
-	    (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
+	    (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))
 
 	   skip-interrupt-handler
 	    ;; Restore thread-local values

@@ -81,23 +81,23 @@
 (defparameter +call-site-numargs-maps+
     '((1 . (#xff #x56
 		 #.(cl:ldb (cl:byte 8 0)
-			   (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))
+			   (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))
       (2 . (#xff #x56
 	    #.(cl:ldb (cl:byte 8 0)
-	       (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op))))
+	       (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op))))
       (3 . (#xff #x56
 	    #.(cl:ldb (cl:byte 8 0)
-	       (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op))))
+	       (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op))))
       (0 . (#x33 #xc9 #xff #x56		; xorl :ecx :ecx
 	    #.(cl:ldb (cl:byte 8 0)
-	       (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))
+	       (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))
       (0 . (#xb1 #x00 #xff #x56		; movb 0 :cl
 	    #.(cl:ldb (cl:byte 8 0)
-	       (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))
+	       (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))
       (2 . (#xff #x57
 	    #.(movitz:global-constant-offset 'fast-compare-two-reals)))
       (:ecx . (#xff #x56 #.(cl:ldb (cl:byte 8 0)
-			    (bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))))
+			    (binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))))
 
 (defun stack-frame-numargs (stack frame)
   "Try to determine how many arguments was presented to the stack-frame."
@@ -291,7 +291,7 @@ located in the caller's stack-frame or funobj-constants."
 			       (success (funobj-constant-ref
 					 funobj
 					 (signed8-index (- result-position
-							   #.(bt:slot-offset 'movitz::movitz-funobj
+							   #.(binary-types:slot-offset 'movitz::movitz-funobj
 									     'movitz::constant0)))))))
 			    (:esp
 			     (success (stack-frame-ref stack frame

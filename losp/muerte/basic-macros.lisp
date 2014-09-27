@@ -399,7 +399,7 @@
   `(with-inline-assembly (:returns :register :side-effects nil)
      (:compile-form (:result-mode :eax) ,object-form)
      (#.movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-      :movl (:eax ,(bt:slot-offset (find-symbol (string type) :movitz)
+      :movl (:eax ,(binary-types:slot-offset (find-symbol (string type) :movitz)
 				   (find-symbol (string slot-name) :movitz)))
 	    (:result-register))))
 
@@ -408,13 +408,13 @@
   `(with-inline-assembly (:returns :eax :side-effects t)
      (:compile-two-forms (:eax :ebx) ,value-form ,object-form)
      (#.movitz:*compiler-nonlocal-lispval-write-segment-prefix*
-      :movl :eax (:ebx ,(bt:slot-offset (find-symbol (string type) :movitz)
+      :movl :eax (:ebx ,(binary-types:slot-offset (find-symbol (string type) :movitz)
 					(find-symbol (string slot-name) :movitz))))))
 
 ;; (defmacro movitz-accessor-u16 (object-form type slot-name)
 ;;   `(with-inline-assembly (:returns :eax)
 ;;      (:compile-form (:result-mode :eax) ,object-form)
-;;      (:movzxw (:eax ,(bt:slot-offset (find-symbol (string type) :movitz)
+;;      (:movzxw (:eax ,(binary-types:slot-offset (find-symbol (string type) :movitz)
 ;; 				     (find-symbol (string slot-name) :movitz)))
 ;; 	      :ecx)
 ;;      (:leal ((:ecx #.movitz::+movitz-fixnum-factor+) :edi ,(- (movitz::image-nil-word movitz::*image*)))
@@ -424,7 +424,7 @@
 ;;   `(with-inline-assembly (:returns :eax)
 ;;      (:compile-two-forms (:eax :ecx) ,object-form ,value)
 ;;      (:shrl ,movitz::+movitz-fixnum-shift+ :ecx)
-;;      (:movw :cx (:eax ,(bt:slot-offset (find-symbol (string type) :movitz)
+;;      (:movw :cx (:eax ,(binary-types:slot-offset (find-symbol (string type) :movitz)
 ;; 				       (find-symbol (string slot-name) :movitz))))
 ;;      (:leal ((:ecx #.movitz::+movitz-fixnum-factor+) :edi ,(- (movitz::image-nil-word movitz::*image*)))
 ;; 	    :eax)))
@@ -439,14 +439,14 @@
   (if (not (and (movitz:movitz-constantp type env)
 		(movitz:movitz-constantp slot env)))
       (error "Non-constant movitz-type-slot-offset call.")
-    (bt:slot-offset (intern (symbol-name (movitz:movitz-eval type env)) :movitz)
+    (binary-types:slot-offset (intern (symbol-name (movitz:movitz-eval type env)) :movitz)
 		    (intern (symbol-name (movitz:movitz-eval slot env)) :movitz))))
 
 (define-compiler-macro movitz-type-location-offset (type slot &environment env)
   (if (not (and (movitz:movitz-constantp type env)
 		(movitz:movitz-constantp slot env)))
       (error "Non-constant movitz-type-slot-offset call.")
-    (truncate (+ -6 (bt:slot-offset (intern (symbol-name (movitz:movitz-eval type env)) :movitz)
+    (truncate (+ -6 (binary-types:slot-offset (intern (symbol-name (movitz:movitz-eval type env)) :movitz)
 				    (intern (symbol-name (movitz:movitz-eval slot env)) :movitz)))
 	      4)))
 
@@ -787,7 +787,7 @@
        (:movl :edx :esi)
       funobj-ok
        (:xorl :ecx :ecx)
-       (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))))
+       (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector))))))
 
 (define-compiler-macro compiler-error (&rest args)
   (apply 'error args))
@@ -801,13 +801,13 @@
 	(do-case (t :multiple-values :labels (not-symbol not-funobj funobj-ok))
 	  (:compile-two-forms (:edx :eax) ,function ,argument)
 	  (:movl :edx :esi)
-	  (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
+	  (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
      (symbol
       (with-inline-assembly-case ()
 	(do-case (t :multiple-values :labels (not-symbol not-funobj funobj-ok))
 	  (:compile-two-forms (:edx :eax) ,function ,argument)
-	  (:movl (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
-	  (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
+	  (:movl (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
+	  (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
      ((or symbol function)
       (with-inline-assembly-case ()
 	(do-case (t :multiple-values :labels (not-symbol not-funobj funobj-ok))
@@ -816,16 +816,16 @@
 	  (:andl 5 :ecx)
 	  (:movl :edx :esi)
 	  (:jnz 'funobj-ok)		; not a symbol, so it must be a funobj.
-	  (:movl (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
+	  (:movl (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
 	 funobj-ok
-	  (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
+	  (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))
      (t (with-inline-assembly-case ()
 	  (do-case (t :multiple-values :labels (not-symbol not-funobj funobj-ok))
 	    (:compile-two-forms (:edx :eax) ,function ,argument)
 	    (:leal (:edx -7) :ecx)
 	    (:testb 7 :cl)
 	    (:jnz 'not-symbol)
-	    (:movl (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
+	    (:movl (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
 	    (:jmp 'funobj-ok)
 	   not-symbol
 	    (:leal (:edx -6) :ecx)
@@ -837,7 +837,7 @@
 	    (:jne 'not-funobj)
 	    (:movl :edx :esi)
 	   funobj-ok
-	    (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))))
+	    (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op))))))))
 
 (define-compiler-macro funcall%2ops (function arg0 arg1)
   (let ((function-var (gensym)))
@@ -849,7 +849,7 @@
 	   (:leal (:edx -7) :ecx)
 	   (:andb 7 :cl)
 	   (:jnz 'not-symbol)
-	   (:movl (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
+	   (:movl (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
 	   (:jmp 'funobj-ok)
 	  not-symbol
 	   (:cmpb 7 :cl)
@@ -860,7 +860,7 @@
 	   (:jne 'not-funobj)
 	   (:movl :edx :esi)
 	  funobj-ok
-	   (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op))))))))
+	   (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op))))))))
 
 (define-compiler-macro funcall%3ops (function arg0 arg1 arg2)
   (let ((function-var (gensym)))
@@ -872,7 +872,7 @@
 	   (:leal (:edx -7) :ecx)
 	   (:andb 7 :cl)
 	   (:jnz 'not-symbol)
-	   (:movl (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
+	   (:movl (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)) :esi)
 	   (:jmp 'funobj-ok)
 	  not-symbol
 	   (:cmpb 7 :cl)
@@ -883,27 +883,27 @@
 	   (:jne 'not-funobj)
 	   (:movl :edx :esi)
 	  funobj-ok
-	   (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
+	   (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
 	   (:leal (:esp 4) :esp))))))
 
 (define-compiler-macro funcall%unsafe%1ops (function arg0)
   `(with-inline-assembly (:returns :multiple-values)
      (:compile-two-forms (:eax :esi) ,arg0 ,function)
-     (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))))
+     (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%1op)))))
 
 (define-compiler-macro funcall%unsafe%2ops (function arg0 arg1)
   `(with-inline-assembly (:returns :multiple-values)
      (:compile-form (:result-mode :push) ,function)
      (:compile-two-forms (:eax :ebx) ,arg0 ,arg1)
      (:popl :esi)
-     (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))))
+     (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%2op)))))
 
 (define-compiler-macro funcall%unsafe%3ops (function arg0 arg1 arg2)
   `(let ((fn ,function))
      (with-inline-assembly (:returns :multiple-values)
        (:compile-arglist () ,arg0 ,arg1 ,arg2)
        (:compile-form (:result-mode :esi) fn)
-       (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
+       (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector%3op)))
        (:leal (:esp 4) :esp))))
 
 (define-compiler-macro funcall%unsafe (function &rest args)
@@ -911,7 +911,7 @@
     (0 `(with-inline-assembly (:returns :multiple-values)
 	  (:compile-form (:result-mode :esi) ,function)
 	  (:xorl :ecx :ecx)
-	  (:call (:esi ,(bt:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))))
+	  (:call (:esi ,(binary-types:slot-offset 'movitz::movitz-funobj 'movitz::code-vector)))))
     (1 `(funcall%unsafe%1ops ,function ,(first args)))
     (2 `(funcall%unsafe%2ops ,function ,(first args) ,(second args)))
     (3 `(funcall%unsafe%3ops ,function ,(first args) ,(second args) ,(third args)))
@@ -999,7 +999,7 @@
 	 (:testb 7 :cl)
 	 (:jnz '(:sub-program () (:int 66)))
 	 (#.movitz:*compiler-nonlocal-lispval-read-segment-prefix*
-	  :movl ((:result-register) ,(bt:slot-offset 'movitz::movitz-std-instance slot))
+	  :movl ((:result-register) ,(binary-types:slot-offset 'movitz::movitz-std-instance slot))
 		(:result-register))))))
 
 (defmacro/cross-compilation std-instance-writer (slot value instance-form)
@@ -1012,7 +1012,7 @@
 	 (:testb 7 :cl)
 	 (:jnz '(:sub-program () (:int 66)))
 	 (#.movitz:*compiler-nonlocal-lispval-write-segment-prefix*
-	  :movl :eax (:ebx ,(bt:slot-offset 'movitz::movitz-std-instance slot)))))))
+	  :movl :eax (:ebx ,(binary-types:slot-offset 'movitz::movitz-std-instance slot)))))))
 
 (define-compiler-macro std-instance-class (instance)
   `(std-instance-reader class ,instance))
@@ -1113,7 +1113,7 @@ busy-waiting loop on P4."
        (:jnz ',function-name-not-found-label)
        (:xorb ,(movitz::tag :symbol) :dl)
        ;; Check if symbol's function-value is eq to our current funobj (in ESI).
-       (:cmpl :esi (:edx ,(bt:slot-offset 'movitz::movitz-symbol 'movitz::function-value)))
+       (:cmpl :esi (:edx ,(binary-types:slot-offset 'movitz::movitz-symbol 'movitz::function-value)))
        (:jne ',function-name-not-found-label)
        (:movl :edx :eax)
        ,function-name-not-found-label)))

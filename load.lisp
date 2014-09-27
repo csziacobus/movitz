@@ -38,7 +38,7 @@
 			  (unwind-protect
 			       (progn
 				 (setf (ext:default-directory) #p"../ia-x86/")
-				 (load "load"))
+				 (load "load")) bindings...)
 			    (setf (ext:default-directory) pwd))))
 	   #-(or cmu) (load "load"))
 
@@ -46,7 +46,7 @@
   (with-simple-restart (retry "Retry loading Movitz")
     (return
       (with-compilation-unit ()
-	#+cmu (setf bt::*ignore-hidden-slots-for-pcl* t)
+	#+cmu (setf binary-types::*ignore-hidden-slots-for-pcl* t)
 	(mapcar (lambda (path)
 		  (do () (nil)
 		    #+lispworks-personal-edition (hcl:mark-and-sweep 3)

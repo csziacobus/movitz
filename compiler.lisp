@@ -3412,7 +3412,7 @@ loading borrowed bindings."
 		     (assert (not indirect-p))
 		     (append (install-for-single-value lexb lexb-location :ecx nil)
 			     `((:shrl ,+movitz-fixnum-shift+ :ecx))))
-		    #+ignore ((warn "utecx ~S bt: ~S" lexb decoded-type))
+		    #+ignore ((warn "utecx ~S binary-types: ~S" lexb decoded-type))
 		    (t
 		     (assert (not indirect-p))
 		     (assert (not (member :eax protect-registers)))
@@ -3924,7 +3924,7 @@ loading borrowed bindings."
 				  "Binding ~S with ~S borrows no nothing, which makes no sense." function-binding sub-funobj)
 			  (append (make-load-constant sub-funobj :eax funobj frame-map)
 				  `((:movl (:edi ,(global-constant-offset 'copy-funobj)) :esi)
-				    (:call (:esi ,(bt:slot-offset 'movitz-funobj 'code-vector%1op)))
+				    (:call (:esi ,(binary-types:slot-offset 'movitz-funobj 'code-vector%1op)))
 				    (:movl :eax :edx))
 				  (make-store-lexical function-binding :eax nil funobj frame-map)
 				  (loop for bb in (borrowed-bindings sub-funobj)
@@ -3957,7 +3957,7 @@ loading borrowed bindings."
 				  `((:movl :edx ,register)))))
 		       (t (append (make-load-constant sub-funobj :eax funobj frame-map)
 				  `((:movl (:edi ,(global-constant-offset 'copy-funobj)) :esi)
-				    (:call (:esi ,(bt:slot-offset 'movitz-funobj 'code-vector%1op)))
+				    (:call (:esi ,(binary-types:slot-offset 'movitz-funobj 'code-vector%1op)))
 				    (:movl :eax :edx))
 				  lend-code
 				  `((:movl :edx ,register))))))
@@ -6615,11 +6615,11 @@ and a list of any intervening unwind-protect environment-slots."
     (check-type dst (member :eax :ebx :ecx :edx))
     (multiple-value-bind (op-offset fast-op fast-op-ebx cl-op)
 	(ecase op
-	  (:car (values (bt:slot-offset 'movitz-cons 'car)
+	  (:car (values (binary-types:slot-offset 'movitz-cons 'car)
 			'fast-car
 			'fast-car-ebx
 			'movitz-car))
-	  (:cdr (values (bt:slot-offset 'movitz-cons 'cdr)
+	  (:cdr (values (binary-types:slot-offset 'movitz-cons 'cdr)
 			'fast-cdr
 			'fast-cdr-ebx
 			'movitz-cdr)))
@@ -7329,7 +7329,7 @@ but it's requested to be in ~S."
 			(:je ',eql-done)
 			(,*compiler-global-segment-prefix*
 			 :movl (:edi ,(global-constant-offset 'complicated-eql)) :esi)
-			(:call (:esi ,(bt:slot-offset 'movitz-funobj 'code-vector%2op)))
+			(:call (:esi ,(binary-types:slot-offset 'movitz-funobj 'code-vector%2op)))
 			(:jne ',on-false-label)
 			,eql-done))))
 	   ((eq :boolean-branch-on-true (operator return-mode))
@@ -7339,7 +7339,7 @@ but it's requested to be in ~S."
 			(:je ',on-true-label)
 			(,*compiler-global-segment-prefix*
 			 :movl (:edi ,(global-constant-offset 'complicated-eql)) :esi)
-			(:call (:esi ,(bt:slot-offset 'movitz-funobj 'code-vector%2op)))
+			(:call (:esi ,(binary-types:slot-offset 'movitz-funobj 'code-vector%2op)))
 			(:je ',on-true-label)))))
 	   ((eq return-mode :boolean-zf=1)
 	    (append (make-load-eax-ebx)
@@ -7348,7 +7348,7 @@ but it's requested to be in ~S."
 			(:je ',eql-done)
 			(,*compiler-global-segment-prefix*
 			 :movl (:edi ,(global-constant-offset 'complicated-eql)) :esi)
-			(:call (:esi ,(bt:slot-offset 'movitz-funobj 'code-vector%2op)))
+			(:call (:esi ,(binary-types:slot-offset 'movitz-funobj 'code-vector%2op)))
 			,eql-done))))
 	   (t (error "unknown eql: ~S" instruction))))))))
 
