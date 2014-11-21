@@ -3,3 +3,13 @@
 .#*
 *fasl
 *-image
+*.img
+*.dvi
+*.aux
+*.log
+*.toc
+*.log
+*.idx
+*.out
+*.lx64fsl
+bootblock-id.txt
