@@ -25,4 +25,9 @@ Now there are two options:
 
 You can use `qemu-system-i386 foo.img` to run the image in a virtualized environment.
 
+Documentation and Information
+-----------------------------
+More information on movitz can be found at the [Movitz Trac Page]
+(http://trac.common-lisp.net/movitz/wiki)
+
 
