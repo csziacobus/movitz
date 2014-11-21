@@ -17,7 +17,7 @@
 (require :muerte/basic-macros)
 (provide :muerte/read)
 
-(in-package muerte)
+(in-package #:muerte)
 
 (defvar *read-suppress*)
 (defvar *readtable* nil)
@@ -357,7 +357,15 @@ of string delimited by start and end."
 			  ((>= 1 (- token-end i))
 			   (values (char string i) (1+ i) string end))
 			  (t (error "Don't know this character: ~S"
-				    (substring string i token-end))))))))))
+				    (substring string i token-end))))))
+                  (#\c (warn "Complex number!!")
+                   (multiple-value-bind (real-imag form-end)
+                       (simple-read-from-string string eof-error-p eof-value :start (1+ i) :end end)
+                     (values (complex (car real-imag)
+                                      (cadr real-imag))
+                             form-end
+                             string
+                             end)))))))
 	(t (return-from simple-read-from-string
 	     (simple-read-token string :start i :end end)))))))
 
