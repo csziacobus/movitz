@@ -3412,7 +3412,7 @@ loading borrowed bindings."
 		     (assert (not indirect-p))
 		     (append (install-for-single-value lexb lexb-location :ecx nil)
 			     `((:shrl ,+movitz-fixnum-shift+ :ecx))))
-		    #+ignore ((warn "utecx ~S binary-types: ~S" lexb decoded-type))
+		    #+ignore ((warn "utecx ~S binding-type: ~S" lexb decoded-type))
 		    (t
 		     (assert (not indirect-p))
 		     (assert (not (member :eax protect-registers)))
