@@ -7,7 +7,7 @@ Movitz: a Common Lisp x86 development platform
 Implementations
 ---------------
 The implementation I recommend building movitz with is SBCL. CCL's repl is broken on s-exprs
-and CLISP are cannot even build movitz correctly as of now.
+and CLISP cannot even build movitz correctly as of now.
 
 Getting started with an image
 -----------------------------
@@ -45,9 +45,9 @@ The commands provided by movitz-mode, such as movitz-compile-defun
 (M-C-x), movitz-disassemble-defun (C-c C-v), etc. manipulate the
 symbolic image in movitz:*image* (typically the image you last
 created with create-image). In order to actually run any code
-you compile, you have to re-dump and re-boot (i.e. repeat steps
-7 and 8 above, which movitz-dump-image-and-qemu
-(C-c C-d) is supposed to do automatically (if you just want to
+you compile, you have to re-dump and re-boot (which
+movitz-dump-image-and-qemu
+(C-c C-d) is supposed to do automatically. If you just want to
 dump the image you can use `(C-C d)).
 
 You may need to set the variable movitz-mode-qemu-binary-path
