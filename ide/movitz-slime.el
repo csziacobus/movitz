@@ -49,13 +49,8 @@ Emacs Lisp package."))
   :type 'string
   :group 'movitz)
 
-(defcustom movitz-mode-qemu-binary-path "c:/progra~1/qemu/qemu"
+(defcustom movitz-mode-qemu-binary-path "/usr/bin/qemu-system-i386"
   "*Location of the QEMU binary."
-  :type 'string
-  :group 'movitz)
-
-(defcustom movitz-mode-qemu-directory "c:/progra~1/qemu/qemu"
-  "*Location for the QEMU -L option."
   :type 'string
   :group 'movitz)
 
@@ -185,10 +180,7 @@ If RUN-EMULATOR is non-nil, call an emulator on the resulting file."
 			  (message "Dumping '%s'..done, starting qemu" movitz-mode-image-file)
 			  (call-process movitz-mode-qemu-binary-path
 					nil 0 nil
-					"-s"
-					"-L" movitz-mode-qemu-directory
-					"-fda" movitz-mode-image-file
-					"-boot" "a"))	
+					movitz-mode-image-file))   
 		      (lambda (_) (message "Dumping '%s'..done" movitz-mode-image-file)))))
 
 (defun movitz-defun-name-and-type ()
