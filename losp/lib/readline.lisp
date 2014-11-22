@@ -345,6 +345,3 @@ completion-start and completion-end are bounding indexes into completion's name.
 		(setf (cursor-x *standard-output*) cursor-origin
 		      edit-buffer (mod (1+ edit-buffer) (length buffers))))
 	       (t (warn "unknown terminator: ~S" terminator)))))))
-
-
-
