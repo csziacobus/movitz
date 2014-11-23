@@ -35,10 +35,12 @@
 
 (defvar *bq-level* 0)
 (defvar *movitz-directory-path* (asdf:system-source-directory :movitz))
+(defvar *losp-directory-path*
+  (uiop:subpathname *movitz-directory-path* "losp/"))
 (defvar *default-image-init-file*
-  (merge-pathnames #p"losp/los0.lisp" *movitz-directory-path*))
+  (uiop:subpathname *losp-directory-path* "los0" :type "lisp"))
 (defvar *default-image-file*
-  (merge-pathnames #p"los0-image" *movitz-directory-path*))
+  (uiop:subpathname *movitz-directory-path* "los0-image"))
 
 (defvar *movitz-host-features* *features*
   "The *features* of the host implementation.")

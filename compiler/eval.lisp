@@ -30,13 +30,11 @@
 (defun movitz-module-path (require-form)
   "Given a require form, return the path of the file that is expected ~
    to provide that module."
-  (let ((module (second require-form)))
-    (concatenate 'string
-      "losp/"
-      (or (third require-form)
-	  (concatenate 'string
-	    (string-downcase (symbol-name module))
-	    ".lisp")))))
+  (destructuring-bind (require module) require-form
+    (declare (ignore require))
+    (uiop:subpathname *losp-directory-path*
+                      (string-downcase module)
+                      :type "lisp")))
 
 (defun movitzify-package-name (name)
   (let ((name (string name)))
