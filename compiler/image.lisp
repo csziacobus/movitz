@@ -815,13 +815,13 @@ a cons is an offset (the car) from some other code-vector (the cdr)."
 			  (gc t)
 			  ;; (start-address #x100000)
 			  &allow-other-keys)
-  (psetq *image* (let ((*image* (apply #'make-movitz-image
-				       :start-address #x100000
-				       init-args)))
-		   (when init-file
-		     (movitz-compile-file init-file))
-		   *image*)
-	 *i* *image*)
+  (shiftf *ii* *i*
+          *image* (let ((*image* (apply #'make-movitz-image
+                                        :start-address #x100000
+                                        init-args)))
+                    (when init-file
+                      (movitz-compile-file init-file))
+                    *image*))
   (when gc
     #+allegro (setf (sys:gsgc-parameter :generation-spread) 8)
     #+allegro (excl:gc :tenure)
