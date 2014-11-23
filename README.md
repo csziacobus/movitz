@@ -12,7 +12,7 @@ and CLISP cannot even build movitz correctly as of now.
 Getting started with an image
 -----------------------------
 First, fire up your Lisp implementation and load the `movitz.asd` file.
-Afterwards load the system and evaluate the form `(movitz:create-image)`.
+Afterwards, load the system, change into the movitz directory, and evaluate the form `(movitz:create-image)`.
 When the symbolic image finishes loading you can then dump the image with
 `(movitz:dump-image :path "foo.img")`, which will dump the image associated with the variable
 `*movitz:image*` to `foo.img`.

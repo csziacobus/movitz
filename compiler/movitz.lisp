@@ -13,7 +13,7 @@
 ;;;;                
 ;;;;------------------------------------------------------------------
 
-(in-package movitz)
+(in-package #:movitz)
 
 (defvar *i* nil)			; These hold the previous built images,
 (defvar *ii* nil)			; for interactive use.
@@ -34,8 +34,11 @@
 (defvar +movitz-multiple-values-limit+ 63)
 
 (defvar *bq-level* 0)
-(defvar *default-image-init-file* #p"losp/los0.lisp")
-(defvar *default-image-file* #p"los0-image")
+(defvar *movitz-directory-path* (asdf:system-source-directory :movitz))
+(defvar *default-image-init-file*
+  (merge-pathnames #p"losp/los0.lisp" *movitz-directory-path*))
+(defvar *default-image-file*
+  (merge-pathnames #p"los0-image" *movitz-directory-path*))
 
 (defvar *movitz-host-features* *features*
   "The *features* of the host implementation.")
