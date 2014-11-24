@@ -32,7 +32,7 @@
    to provide that module."
   (destructuring-bind (require module) require-form
     (declare (ignore require))
-    (uiop:subpathname *losp-directory-path*
+    (uiop:subpathname (asdf:system-relative-pathname :movitz "losp/")
                       (string-downcase module)
                       :type "lisp")))
 

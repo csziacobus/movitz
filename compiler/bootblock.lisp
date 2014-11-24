@@ -16,7 +16,7 @@
 (in-package #:movitz)
 
 (defvar *bootblock-build-file*
-  (uiop:subpathname *movitz-directory-path* #p"bootblock-id.txt"))
+  (asdf:system-relative-pathname :movitz "bootblock-id" :type "txt"))
 
 (defvar *bootblock-build*
     ;; make this variable persistent.

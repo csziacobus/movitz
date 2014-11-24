@@ -32,13 +32,11 @@
 (defvar +movitz-multiple-values-limit+ 63)
 
 (defvar *bq-level* 0)
-(defvar *movitz-directory-path* (asdf:system-source-directory :movitz))
-(defvar *losp-directory-path*
-  (uiop:subpathname *movitz-directory-path* "losp/"))
+
 (defvar *default-image-init-file*
-  (uiop:subpathname *losp-directory-path* "los0" :type "lisp"))
+  (asdf:system-relative-pathname :movitz "losp/los0" :type "lisp"))
 (defvar *default-image-file*
-  (uiop:subpathname *movitz-directory-path* "los0-image"))
+  (asdf:system-relative-pathname :movitz "los0-image"))
 
 (defvar *movitz-host-features* *features*
   "The *features* of the host implementation.")
