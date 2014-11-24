@@ -41,10 +41,10 @@
     (if (member name '("cl" "common-lisp" "mop")
 		:test #'string-equal)
 	(concatenate 'string (string '#:muerte.) name)
-      name)))
+        name)))
 
 (defmacro with-retries-until-true ((name format-control &rest format-arguments) &body body)
-  `(do () (nil)
+  `(loop
      (with-simple-restart (,name ,format-control ,@format-arguments)
        (return (progn ,@body)))))
 

@@ -118,6 +118,3 @@
 (defmethod (setf image-lisp-to-movitz-object) (movitz-object (image stream-image) lisp-object)
   (declare (ignore lisp-object))
   movitz-object)
-
-
-

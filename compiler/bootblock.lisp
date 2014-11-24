@@ -13,9 +13,11 @@
 ;;;;                
 ;;;;------------------------------------------------------------------
 
-(in-package movitz)
+(in-package #:movitz)
 
-(defvar *bootblock-build-file* #p"bootblock-id.txt")
+(defvar *bootblock-build-file*
+  (uiop:subpathname *movitz-directory-path* #p"bootblock-id.txt"))
+
 (defvar *bootblock-build*
     ;; make this variable persistent.
     (or (ignore-errors
@@ -435,4 +437,3 @@
 	  (with-standard-io-syntax
 	    (write *bootblock-build* :stream s)))
 	(values bootblock (append bb-symtab protected-symtab))))))
-      
