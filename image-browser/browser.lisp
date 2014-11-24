@@ -14,27 +14,17 @@
 ;;;;                
 ;;;;------------------------------------------------------------------
 
-(eval-when (:compile-toplevel :load-toplevel)
-  #+allegro (require :climxm))
-
-(defpackage movitz-browser
-  (:use clim clim-lisp movitz binary-types)
-  (:export browse-file
-	   browse-pid
-	   browse-word
-	   browser))
-
-(in-package movitz-browser)
+(in-package #:movitz-browser)
 
 (define-command-table browser-file-commands
-    :menu (("Print" :command print-graph)
-	   ("Print preview" :command print-graph-preview)
-	   ("" :divider :line)
-	   ("Quit" :command quit)))
+  :menu (("Print" :command print-graph)
+         ("Print preview" :command print-graph-preview)
+         ("" :divider :line)
+         ("Quit" :command quit)))
 
 (define-command-table browser-tree-commands
-    :menu (("Set NIL as root" :command (read-and-set-root nil))
-	   ("Enter word" :command set-root-word)))
+  :menu (("Set NIL as root" :command (read-and-set-root nil))
+         ("Enter word" :command set-root-word)))
 
 (define-command quit ()
   (frame-exit *application-frame*))
@@ -45,11 +35,12 @@
     (select-file *application-frame*)))
 
 (define-command print-graph-preview ()
-  (let ((temp-name (sys:make-temp-file-name "browser-graph-preview")))
+  (let ((temp-name "browser-graph-preview"))
     (with-open-file (temp-file temp-name :direction :output)
       (with-output-to-postscript-stream (ps-stream temp-file)
 	(display-graph *application-frame* ps-stream)))
-    (excl:run-shell-command (format nil "gv -resize ~S; rm ~S" temp-name temp-name) :wait nil)))
+    (uiop:run-program `("gv" "-resize" ,temp-name))
+    (uiop:run-program `("rm" ,temp-name))))
 
 (define-application-frame browser ()
   ((root-tuple
@@ -84,27 +75,27 @@
 (defun display-graph (browser *standard-output*)
   (format-graph-from-root (browser-root-tuple browser)
 			  ;; printer
-			  #'(lambda (tuple *standard-output*)
-			      (with-output-as-presentation (t tuple 'graph-tuple)
-				(with-slots (object slot-name) tuple
-				  (formatting-table ()
-				    (formatting-column ()
-				      (when slot-name
-					(formatting-cell (t :align-x :center)
-					  (display-child-spec slot-name)))
-				      (formatting-cell (t :align-x :center)
-					(present object)))))))
+			  (lambda (tuple *standard-output*)
+                            (with-output-as-presentation (t tuple 'graph-tuple)
+                              (with-slots (object slot-name) tuple
+                                (formatting-table ()
+                                  (formatting-column ()
+                                    (when slot-name
+                                      (formatting-cell (t :align-x :center)
+                                        (display-child-spec slot-name)))
+                                    (formatting-cell (t :align-x :center)
+                                      (present object)))))))
 			  ;; child-producer
-			  #'(lambda (tuple)
-			      (with-slots (tree object parent slot-name) tuple
-				;; (warn "child-of: ~S" (type-of object))
-				(mapcar #'(lambda (child-slot-name)
-					    (make-graph-tuple
-					     :tree tree
-					     :object (browser-child object child-slot-name)
-					     :parent object
-					     :slot-name child-slot-name))
-					(browser-open-slots tree object parent slot-name))))
+			  (lambda (tuple)
+                            (with-slots (tree object parent slot-name) tuple
+                              ;; (warn "child-of: ~S" (type-of object))
+                              (mapcar (lambda (child-slot-name)
+                                        (make-graph-tuple
+                                         :tree tree
+                                         :object (browser-child object child-slot-name)
+                                         :parent object
+                                         :slot-name child-slot-name))
+                                      (browser-open-slots tree object parent slot-name))))
 			  :graph-type :digraph
 			  :within-generation-separation 2
 			  :maximize-generations nil
@@ -143,7 +134,7 @@
 
 (define-presentation-type browser-array ())
 
-(defmethod browser-child ((object movitz-vector) child-spec)
+(defmethod browser-child ((object movitz-basic-vector) child-spec)
   (destructuring-bind (operator &rest operands)
       child-spec
     (case operator
@@ -152,8 +143,8 @@
 	    (movitz-vector-symbolic-data object)))
       (array
        (make-instance 'browser-array
-	 :type (movitz-vector-element-type object)
-	 :elements (movitz-vector-symbolic-data object)))
+                      :type (movitz-vector-element-type object)
+                      :elements (movitz-vector-symbolic-data object)))
       (t (call-next-method object child-spec)))))
 
 (defmethod browser-child ((object movitz-struct) child-spec)
@@ -171,7 +162,7 @@
     (word (movitz-word (binary-slot-value object slot-name)))
     (t (if (slot-boundp object slot-name)
 	   (slot-value object slot-name)
-	 (make-symbol "[UNBOUND]")))))
+           (make-symbol "[UNBOUND]")))))
 
 (defun browser-all-slots (object)
   (mapcar #'(lambda (slot-name) (list 'slot-value slot-name))
@@ -182,7 +173,7 @@
 			   '((slot-value movitz::type))
 			   :key #'second)))
 
-(defmethod browser-default-open-slots ((object movitz-vector))
+(defmethod browser-default-open-slots ((object movitz-basic-vector))
   (assert (= (length (movitz-vector-symbolic-data object))
 	     (movitz-vector-num-elements object)))
   (append (remove 'movitz::data (call-next-method object) :key #'second)
@@ -190,19 +181,19 @@
 	    (:any-t
 	     ;; merge EQ elements..
 	     (loop for (value next-value) on (movitz-vector-symbolic-data object)
-		 as i upfrom 0
-		 with start-index = 0
-		 unless (and next-value
-			     (= (movitz-intern value)
-				(movitz-intern next-value)))
-		 collect `(aref ,start-index ,@(unless (= i start-index) (list i)))
-		 and do (setf start-index (1+ i))))
+                   as i upfrom 0
+                   with start-index = 0
+                   unless (and next-value
+                               (= (movitz-intern value)
+                                  (movitz-intern next-value)))
+                     collect `(aref ,start-index ,@(unless (= i start-index) (list i)))
+                     and do (setf start-index (1+ i))))
 	    (t (list `(array ,(movitz-vector-num-elements object)))))))
 
 (defmethod browser-default-open-slots ((object movitz-struct))
   (append (remove 'movitz::slot0 (call-next-method object) :key #'second)
 	  (loop for x from 0 below (movitz-struct-length object)
-	      collect `(struct-ref ,x))))
+                collect `(struct-ref ,x))))
 
 (defun browse-image (*image* &key (root (make-graph-tuple
 					 :object (movitz-word (movitz-read-and-intern nil 'word))
@@ -220,30 +211,28 @@
   (browse-image movitz::*image*
 		:root (make-graph-tuple :object (movitz-word word)
 					:tree (gensym))))
-    
+
 (defun browser ()
-  (multiprocessing:process-run-function "browser" #'browse-image *i*))
+  (bt:make-thread (lambda () (browse-image *image*)) :name "browser"))
 
 (defun browse-pid (pid)
   (flet ((do-browse-pid (pid)
 	   (with-procfs-image (pid)
 	     (browse-image *image*))))
-    (multiprocessing:process-run-function
-     `(:name "browser")
-     #'do-browse-pid
-     pid)))
+    (bt:make-thread (lambda () (do-browse-pid pid)) :name "browser")))
 
 (defun browse-file (&key (threadp t) (path *default-image-file*)
 			 (offset (- 512 #x100000)) (direction :input))
   (flet ((do-browse-path (path offset direction)
 	   (with-binary-file (stream path :direction direction)
 	     (browse-image (make-instance 'stream-image
-			     :stream stream
-			     :offset offset)))))
+                                          :stream stream
+                                          :offset offset)))))
     (if threadp
-	(multiprocessing:process-run-function "browser" #'do-browse-path
-					      path offset direction)
-      (do-browse-path path offset direction))))
+	(bt:make-thread (lambda ()
+                          (do-browse-path path offset direction))
+                        :name "browser")
+        (do-browse-path path offset direction))))
 
 
 (define-presentation-type movitz-object ())
@@ -277,10 +266,10 @@
   (format t "#x~8,'0X: |~A|" (movitz-intern object) (browser-print-safely object)))
 
 (define-presentation-method present
-    (object (type movitz-vector) *standard-output* (view textual-view) &key)
+    (object (type movitz-basic-vector) *standard-output* (view textual-view) &key)
   (if (not (eq :character (movitz-vector-element-type object)))
       (call-next-method)
-    (format t "#x~8,'0X: \"~A\"" (movitz-intern object) (browser-print-safely object))))
+      (format t "#x~8,'0X: \"~A\"" (movitz-intern object) (browser-print-safely object))))
 
 (defun browser-print-safely (object)
   (handler-case
@@ -297,19 +286,19 @@
 			((integer 48 127) 4)
 			(t 8))))
     (formatting-table ()
-      (loop for row on (browser-array-elements object) by #'(lambda (x) (nthcdr rows-per-col x))
-	  as i upfrom 0 by rows-per-col
-	  do (formatting-row ()
-	       (formatting-cell (t :align-x :right)
-		 (format t "~D:" i))
-	       (loop for r from 1 to rows-per-col
-		   as element in row
-		   do (formatting-cell ()
-			(case (browser-array-type object)
-			  (:u32 (format t "#x~8,'0X" element))
-			  ((:u8 :code)  (format t "#x~2,'0X" element))
-			  (t #+ignore(warn "unk: ~S" (browser-array-type object))
-			     (write element))))))))))
+      (loop for row on (browser-array-elements object) by (lambda (x) (nthcdr rows-per-col x))
+            as i upfrom 0 by rows-per-col
+            do (formatting-row ()
+                 (formatting-cell (t :align-x :right)
+                   (format t "~D:" i))
+                 (loop for r from 1 to rows-per-col
+                       as element in row
+                       do (formatting-cell ()
+                            (case (browser-array-type object)
+                              (:u32 (format t "#x~8,'0X" element))
+                              ((:u8 :code)  (format t "#x~2,'0X" element))
+                              (t #+ignore(warn "unk: ~S" (browser-array-type object))
+                                 (write element))))))))))
 
 (define-browser-command read-and-set-root ((object 't))
   (set-root (movitz-word (movitz-read-and-intern object 'word))))
@@ -317,13 +306,13 @@
 (define-browser-command toggle ((tuple 'graph-tuple))
   (with-slots (tree object parent slot-name) tuple
     (cond
-     ((null (browser-open-slots tree object parent slot-name))
-      (setf (browser-open-slots tree object parent slot-name)
-	(browser-default-open-slots object)))
+      ((null (browser-open-slots tree object parent slot-name))
+       (setf (browser-open-slots tree object parent slot-name)
+             (browser-default-open-slots object)))
       ;; (warn "now open: ~S" (browser-open-slots tree object parent slot-name)))
-     (t
-      (setf (browser-open-slots tree object parent slot-name)
-	nil)))))
+      (t
+       (setf (browser-open-slots tree object parent slot-name)
+             nil)))))
 
 (define-presentation-to-command-translator toggle
     (graph-tuple
@@ -332,16 +321,16 @@
      :gesture :select
      :tester ((object)
 	      (typep (graph-tuple-object object) 'movitz-heap-object)))
-  (object)
+    (object)
   (list object))
 
 (define-browser-command set-root ((object 'movitz-object))
   (setf (browser-root-tuple *application-frame*)
-    (make-graph-tuple :tree (gensym) :object object)))
+        (make-graph-tuple :tree (gensym) :object object)))
 
 (define-presentation-to-command-translator set-root-tuple
     (graph-tuple set-root browser)
-  (object)
+    (object)
   (list (graph-tuple-object object)))
 
 (define-browser-command new-browser ((object 'movitz-object))
@@ -350,22 +339,22 @@
 
 (define-presentation-to-command-translator new-browser-tuple
     (graph-tuple new-browser browser)
-  (object)
+    (object)
   (list (graph-tuple-object object)))
 
 (defun (setf browser-open-slots) (value tree object parent slot-name)
-  (let ((old-slot (assoc-if #'(lambda (x) (and (eq (car x) parent) (eq (cdr x) slot-name)))
+  (let ((old-slot (assoc-if (lambda (x) (and (eq (car x) parent) (eq (cdr x) slot-name)))
 			    (getf (movitz-object-browser-properties object) tree))))
     (if old-slot
 	(setf (cdr old-slot) value)
-      (setf (getf (movitz-object-browser-properties object) tree)
-	(acons (cons parent slot-name)
-	       value
-	       (getf (movitz-object-browser-properties object) tree)))))
+        (setf (getf (movitz-object-browser-properties object) tree)
+              (acons (cons parent slot-name)
+                     value
+                     (getf (movitz-object-browser-properties object) tree)))))
   value)
 
 (defun browser-open-slots (tree object parent slot-name)
-  (cdr (assoc-if #'(lambda (x) (and (eq (car x) parent) (eq (cdr x) slot-name)))
+  (cdr (assoc-if (lambda (x) (and (eq (car x) parent) (eq (cdr x) slot-name)))
 		 (getf (movitz-object-browser-properties object) tree))))
 
 

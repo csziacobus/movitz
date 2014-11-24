@@ -14,7 +14,7 @@
 ;;;;                
 ;;;;------------------------------------------------------------------
 
-(in-package movitz)
+(in-package #:movitz)
 
 (defclass procfs-image (stream-image)
   ((pid
