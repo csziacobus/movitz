@@ -7,17 +7,6 @@
 ;;; within its host Lisp. The interface is intended for use by Emacs
 ;;; modes such as SLIME and (hopefully) ELI.
 
-(defpackage #:movitz.ide
-  (:use #:cl)
-  (:export #:compile-movitz-file
-           #:compile-defun
-           #:dump-image
-           #:movitz-disassemble
-           #:movitz-disassemble-primitive
-           #:movitz-disassemble-method
-           #:movitz-arglist
-           #:movitz-macroexpand))
-
 (in-package #:movitz.ide)
 
 (defmacro with-image ((&optional (image-form 'movitz:*image*)) &body body)

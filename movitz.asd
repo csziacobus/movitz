@@ -49,7 +49,11 @@
                              (:file "assembly-syntax")
                              (:file "compiler")
                              (:file "special-operators")
-                             (:file "special-operators-cl")))))
+                             (:file "special-operators-cl")))
+               (:module "ide"
+                :description "The Movitz SLIME lisp side backend."
+                :components ((:file "package")
+                             (:file "ide")))))
 
 ;; stop sbcl from complaining about redefining defconstant forms
 #+sbcl
