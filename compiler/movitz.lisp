@@ -28,8 +28,7 @@
 
 (defconstant +code-vector-word-offset+ 2)
 (defconstant +code-vector-transient-word+
-    (ldb (byte 32 0)
-	 (- +code-vector-word-offset+)))
+  (ldb (byte 32 0) (- +code-vector-word-offset+)))
 
 (defvar +movitz-multiple-values-limit+ 63)
 
@@ -161,29 +160,3 @@ make clear it's a Movitz object, with extra <..>"
 
 (defmacro muerte::movitz-backquote (form)
   (un-backquote form 0))
-
-#+allegro
-(excl:defsystem :movitz ()
-  (:serial
-   "movitz"
-   "parse"
-   "eval"
-   "multiboot"
-   "bootblock"
-   "environment"
-   "compiler-types"
-   (:definitions "compiler-protocol"
-       "storage-types")
-   "image"
-   "stream-image"
-   "procfs-image"
-   "assembly-syntax"
-   (:definitions "compiler-protocol"
-       (:parallel "compiler" "special-operators" "special-operators-cl"))))
-
-#+allegro
-(progn
-  (defun muerte.common-lisp::package-name (package)
-    (package-name package))
-  (defun muerte.cl:find-package (name)
-    (find-package name)))
