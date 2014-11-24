@@ -1,4 +1,4 @@
-;; pacakge.lisp
+;; package.lisp
 
 (defpackage asm
   (:use :common-lisp)
@@ -24,3 +24,10 @@
 	   #:*instruction-compute-extra-prefix-map*
 	   #:*position-independent-p*
 	   #:*sub-program-instructions*))
+
+(defpackage asm-x86
+  (:use :common-lisp :asm)
+  (:export #:assemble-instruction
+	   #:disassemble-instruction
+	   #:*cpu-mode*
+	   #:*position-independent-p*))

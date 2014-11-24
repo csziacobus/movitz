@@ -10,14 +10,7 @@
 ;;;;                
 ;;;;------------------------------------------------------------------
 
-(defpackage asm-x86
-  (:use :common-lisp :asm)
-  (:export #:assemble-instruction
-	   #:disassemble-instruction
-	   #:*cpu-mode*
-	   #:*position-independent-p*))
-
-(in-package asm-x86)
+(in-package #:asm-x86)
 
 (defvar *cpu-mode* :32-bit)
 
