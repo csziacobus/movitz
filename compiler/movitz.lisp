@@ -15,10 +15,9 @@
 
 (in-package #:movitz)
 
-(defvar *i* nil)			; These hold the previous built images,
-(defvar *ii* nil)			; for interactive use.
-
-(defvar *image* nil)
+(defvar *image* nil "Holds the current image.")
+(defvar *i* nil "The previous value of *image*")
+(defvar *ii* nil "The previous value of *i*")
 
 (define-symbol-macro *movitz-nil*
     (image-nil-object *image*))
