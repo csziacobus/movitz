@@ -140,7 +140,7 @@
 	  special-values
 	  (local-env env))
       (multiple-value-bind (body declarations)
-	  (parse-declarations-and-body declarations-and-body)
+	  (parse-body declarations-and-body)
 	(dolist (var-spec var-specs)
 	  (multiple-value-bind (var init-form)
 	      (if (atom var-spec)
@@ -165,7 +165,7 @@
     (if (null var-specs)
 	(eval-progn body env)
 	(multiple-value-bind (body declarations)
-	    (parse-declarations-and-body (cddr form))
+	    (parse-body (cddr form))
 	  (multiple-value-bind (var init-form)
 	      (let ((var-spec (pop var-specs)))
 		(if (atom var-spec)
@@ -224,7 +224,7 @@
   (if (and (consp (car form))
 	   (eq 'lambda (caar form)))
       (eval-funcall (cons (let ((lambda-list (cadar form))
-				(lambda-body (parse-docstring-declarations-and-body (cddar form))))
+				(lambda-body (parse-body (cddar form))))
 			    (lambda (&rest args)
 			      (declare (dynamic-extent args))
 			      (eval-progn lambda-body
@@ -295,18 +295,7 @@
               (list ignore-env-var))
             (list operator-var))))
 
-(defun parse-declarations-and-body (forms &optional (declare 'declare))
-  "From the list of FORMS, return first the list of non-declaration forms, ~
-second the list of declaration-specifiers."
-  (assert (eq declare 'declare))
-  (do (declarations
-       (p forms (cdr p)))
-      ((not (and (consp (car p)) (eq 'declare (caar p))))
-       (values p declarations))
-    (dolist (d (cdar p))
-      (push d declarations))))
-
-(defun parse-docstring-declarations-and-body (forms &optional (declare-symbol 'muerte.cl::declare))
+(defun parse-body (forms &optional (declare-symbol 'muerte.cl::declare))
   "From the list of FORMS, return first the non-declarations forms, second the declarations, ~
    and third the documentation string."
   (let ((docstring nil))
@@ -483,7 +472,7 @@ Return the variable, keyword, init-fom, and supplied-p-parameter."
   (destructuring-bind (variables values-form &body declarations-and-body)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let ((values (multiple-value-list (eval-form values-form env)))
 	    special-vars
 	    special-values)
@@ -513,7 +502,7 @@ Return the variable, keyword, init-fom, and supplied-p-parameter."
 	  (symbol-function (lookup-setf-function (second function-name))))
 	 ((lambda)
 	  (let ((lambda-list (cadr function-name))
-		(lambda-body (parse-docstring-declarations-and-body (cddr function-name))))
+		(lambda-body (parse-body (cddr function-name))))
 	    (install-funobj-name :anonymous-lambda
 				 (lambda (&rest args)
 				   (declare (dynamic-extent args))
@@ -639,7 +628,7 @@ Return the variable, keyword, init-fom, and supplied-p-parameter."
 			      nil)))
 		(let ((lambda-list (caddr macrolet-binding)))
                   (multiple-value-bind (body declarations docstring)
-                      (parse-docstring-declarations-and-body (cdddr macrolet-binding))
+                      (parse-body (cdddr macrolet-binding))
                     (declare (ignore docstring))
                     (multiple-value-bind (destructuring-lambda-list whole-var env-var ignore-env ignore-operator)
                         (parse-macro-lambda-list lambda-list)

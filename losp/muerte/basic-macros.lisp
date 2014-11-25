@@ -20,7 +20,7 @@
 (defmacro defun (function-name lambda-list &body body)
   "Define a function."
   (multiple-value-bind (real-body declarations docstring)
-      (movitz::parse-docstring-declarations-and-body body 'cl:declare)
+      (movitz::parse-body body 'cl:declare)
     (let ((block-name (compute-function-block-name function-name)))
       `(progn
 	 (make-named-function ,function-name
@@ -141,7 +141,7 @@
 
 (defmacro/cross-compilation let* (var-list &body declarations-and-body)
   (multiple-value-bind (body declarations)
-      (movitz::parse-declarations-and-body declarations-and-body 'cl:declare)
+      (movitz::parse-body declarations-and-body 'cl:declare)
     (labels ((expand (rest-vars body)
 	       (if (null rest-vars)
 		   body
@@ -219,7 +219,7 @@
 		(or (third var-spec)
 		    '(quote nil)))))
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let* ((loop-tag (gensym "do-loop"))
 	     (start-tag (gensym "do-start")))
 	`(block nil
@@ -255,7 +255,7 @@
 		(or (third var-spec)
 		    '(quote nil)))))
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body 'cl:declare)
+	(parse-body declarations-and-body 'cl:declare)
       (let* ((loop-tag (gensym "do-loop"))
 	     (start-tag (gensym "do-start")))
 	`(block nil
@@ -291,7 +291,7 @@
 		(or (third var-spec)
 		    '(quote nil)))))
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let* ((loop-tag (gensym "do*-loop"))
 	     (start-tag (gensym "do*-start")))
 	`(block nil
@@ -322,7 +322,7 @@
 		(or (third var-spec)
 		    '(quote nil)))))
     (multiple-value-bind (body declarations)
-	(movitz::parse-declarations-and-body declarations-and-body 'cl:declare)
+	(movitz::parse-body declarations-and-body 'cl:declare)
       (let* ((loop-tag (gensym "do*-loop"))
 	     (start-tag (gensym "do*-start")))
 	`(block nil
@@ -514,12 +514,12 @@
 
 (defmacro prog (variable-list &body declarations-and-body)
   (multiple-value-bind (body declarations)
-      (movitz::parse-declarations-and-body declarations-and-body 'cl:declare)
+      (movitz::parse-body declarations-and-body 'cl:declare)
     `(block nil (let ,variable-list (declare ,@declarations) (tagbody ,@body)))))
 
 (defmacro prog* (variable-list &body declarations-and-body)
   (multiple-value-bind (body declarations)
-      (movitz::parse-declarations-and-body declarations-and-body 'cl:declare)
+      (movitz::parse-body declarations-and-body 'cl:declare)
     `(block nil (let* ,variable-list (declare ,@declarations) (tagbody ,@body)))))
 
 (defmacro multiple-value-setq (vars form)

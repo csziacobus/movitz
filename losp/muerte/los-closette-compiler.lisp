@@ -1166,7 +1166,7 @@
 		    (setq parse-state :body))))
 	  (:body (push-on-end arg decl-doc-body))))
       (multiple-value-bind (body declarations documentation)
-	  (movitz::parse-docstring-declarations-and-body decl-doc-body 'cl:declare)
+	  (movitz::parse-body decl-doc-body 'cl:declare)
 	(values fn-spec 
 		qualifiers
 		(extract-lambda-list specialized-lambda-list)
@@ -1608,7 +1608,7 @@ and <method2> is more specific?"
       (assert (eq 'lambda operator) (lambda-expr)
 	"Closette compiler: Lambda wasn't lambda.")
       (multiple-value-bind (body declarations)
-	  (movitz::parse-docstring-declarations-and-body decl-doc-body 'cl:declare)
+	  (movitz::parse-body decl-doc-body 'cl:declare)
 	(movitz::make-compiled-funobj name
 				      (translate-program lambda-list :cl :muerte.cl)
 				      (translate-program declarations :cl :muerte.cl)

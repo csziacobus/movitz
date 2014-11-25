@@ -284,7 +284,7 @@ Otherwise coerce funobj to class."
 	do (when (duplicatesp lambda-list)
 	     (error "There are duplicates in lambda-list ~S." lambda-list))
 	   (multiple-value-bind (clause-body clause-declarations)
-	       (parse-declarations-and-body clause-body)
+	       (parse-body clause-body)
 	     (let* ((function-env
 		     (add-bindings-from-lambda-list lambda-list
 						    (make-local-movitz-environment

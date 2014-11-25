@@ -50,7 +50,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
       form
     (declare (ignore operator))
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body forms)
+	(parse-body forms)
       (if (and (null let-var-specs)
 	       (null declarations))
 	  (compiler-call #'compile-implicit-progn
@@ -377,7 +377,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
   (destructuring-bind (symbol-expansions &body declarations-and-body)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let ((local-env (make-local-movitz-environment
 			env funobj
 			:type 'operator-env
@@ -403,14 +403,14 @@ where zot is not in foo's scope, but _is_ in foo's extent."
   (destructuring-bind (macrolet-specs &body declarations-and-body)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let ((local-env (make-local-movitz-environment env funobj
 						      :type 'operator-env
 						      :declarations declarations)))
 	(loop for (name local-lambda-list . local-body-decl-doc) in macrolet-specs
 	    as cl-local-lambda-list = (translate-program local-lambda-list :muerte.cl :cl)
 	    as (local-body local-declarations) =
-	      (multiple-value-list (parse-docstring-declarations-and-body local-body-decl-doc))
+	      (multiple-value-list (parse-body local-body-decl-doc))
 	    as cl-local-body = (translate-program local-body :muerte.cl :cl)
 	    as cl-local-declarations = (translate-program local-declarations :muerte.cl :cl)
 	    as expander = `(lambda (form env)
@@ -527,7 +527,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
   (destructuring-bind (variables values-form &body body-and-declarations)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body body-and-declarations)
+	(parse-body body-and-declarations)
       (compiler-values-bind (&code values-code &returns values-returns &type values-type)
 	  (compiler-call #'compile-form
 	    :defaults forward
@@ -1061,7 +1061,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 								:cl :muerte.cl))))
 	((cons (eql muerte.cl:lambda))
 	 (multiple-value-bind (lambda-forms lambda-declarations)
-	     (parse-docstring-declarations-and-body (cddr name))
+	     (parse-body (cddr name))
 	   (let ((lambda-funobj
 		  (make-compiled-funobj-pass1 '(muerte.cl:lambda)
 					      (cadr name)
@@ -1085,7 +1085,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
   (destructuring-bind (flet-specs &body declarations-and-body)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let* ((flet-env (make-local-movitz-environment env funobj
 						   :type 'operator-env
 						   :declarations declarations))
@@ -1093,7 +1093,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 	      (loop for (flet-name flet-lambda-list . flet-dd-body) in flet-specs
 		  as flet-binding =
 		    (multiple-value-bind (flet-body flet-declarations flet-docstring)
-			(parse-docstring-declarations-and-body flet-dd-body)
+			(parse-body flet-dd-body)
 		      (declare (ignore flet-docstring))
 		      (let ((flet-funobj
 			     (make-compiled-funobj-pass1 (list 'muerte.cl::flet
@@ -1204,7 +1204,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
   (destructuring-bind (labels-specs &body declarations-and-body)
       (cdr form)
     (multiple-value-bind (body declarations)
-	(parse-declarations-and-body declarations-and-body)
+	(parse-body declarations-and-body)
       (let* ((labels-env (make-local-movitz-environment env funobj
 						     :type 'operator-env
 						     :declarations declarations))
@@ -1220,7 +1220,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 	      (loop for (labels-name labels-lambda-list . labels-dd-body) in labels-specs
 		  as labels-binding in labels-bindings
 		  do (multiple-value-bind (labels-body labels-declarations labels-docstring)
-			 (parse-docstring-declarations-and-body labels-dd-body)
+			 (parse-body labels-dd-body)
 		       (declare (ignore labels-docstring))
 		       (make-compiled-funobj-pass1 (list 'muerte.cl::labels
 							 (movitz-funobj-name funobj)

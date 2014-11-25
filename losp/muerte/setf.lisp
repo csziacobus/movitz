@@ -103,7 +103,7 @@
      (destructuring-bind (lambda-list store-variables &body body-decl-docstring)
          more-args
        (multiple-value-bind (body declarations docstring)
-           (movitz::parse-docstring-declarations-and-body body-decl-docstring 'cl:declare)
+           (movitz::parse-body body-decl-docstring 'cl:declare)
          (let ((movitz-lambda (movitz::translate-program lambda-list :cl :muerte.cl)))
            (multiple-value-bind (wholevars envvars reqvars optionalvars restvar keys auxes)
                (movitz::decode-macro-lambda-list movitz-lambda)

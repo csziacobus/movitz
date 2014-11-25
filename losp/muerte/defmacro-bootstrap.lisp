@@ -36,7 +36,7 @@
 
 (defmacro defmacro/run-time (name lambda-list &body body)
   (multiple-value-bind (real-body declarations docstring)
-      (parse-docstring-declarations-and-body body 'cl:declare)
+      (parse-body body 'cl:declare)
     (multiple-value-bind (destructuring-lambda-list whole-var env-var ignore-env ignore-operator)
         (parse-macro-lambda-list lambda-list)
       (let* ((block-name (compute-function-block-name name))
