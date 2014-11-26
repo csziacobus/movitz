@@ -31,7 +31,7 @@
 
 (defvar +movitz-multiple-values-limit+ 63)
 
-(defvar *bq-level* 0)
+(defvar *backquote-depth* 0)
 
 (defvar *default-image-init-file*
   (asdf:system-relative-pathname :movitz "losp/los0" :type "lisp"))
@@ -57,47 +57,9 @@ make clear it's a Movitz object, with extra <..>"
 	 ,@body
 	 (write-char #\> ,stream-var)))))
 
-(defun movitz-syntax-sharp-dot (stream subchar arg)
-  (declare (ignore arg subchar))
-  (let ((form (read stream t nil t)))
-    (values (unless *read-suppress*
-	      (eval (muerte::translate-program form :muerte.cl :cl))))))
-
 (defmacro with-movitz-syntax (options &body body)
   (declare (ignore options))
-  `(let ((*readtable* (copy-readtable)))
-     (set-dispatch-macro-character #\# #\'
-				   (lambda (stream subchar arg)
-				     (declare (ignore subchar arg))
-				     (list 'muerte.common-lisp::function
-					   (read stream t nil t))))
-     (set-dispatch-macro-character #\# #\{
-				   (lambda (stream subchar arg)
-				     (declare (ignore subchar arg))
-				     (let ((data (read-delimited-list #\} stream)))
-				       (make-movitz-vector (length data)
-							   :element-type 'movitz-unboxed-integer-u8
-							   :initial-contents data))))
-     (set-dispatch-macro-character #\# #\. (lambda (stream subchar arg)
-					     (declare (ignore arg subchar))
-					     (let ((form (read stream t nil t)))
-					       (values (unless *read-suppress*
-							 (eval (muerte::translate-program form :muerte.cl :cl)))))))
-     (set-macro-character #\` (lambda (stream char)
-				(declare (ignore char))
-				(let ((*bq-level* (1+ *bq-level*)))
-				  (list 'muerte::movitz-backquote (read stream t nil t)))))
-     (set-macro-character #\, (lambda (stream char)
-				(declare (ignore char))
-				(assert (plusp *bq-level*) ()
-				  "Comma not inside backquote.")
-				(let* ((next-char (read-char stream t nil t))
-				       (comma-type (case next-char
-						     (#\@ 'backquote-comma-at)
-						     (#\. 'backquote-comma-dot)
-						     (t (unread-char next-char stream)
-							'backquote-comma))))
-				  (list comma-type (read stream t nil t)))))
+  `(let ((*readtable* *movitz-readtable*))
      ,@body))
 
 (defun un-backquote (form level)
@@ -109,7 +71,7 @@ make clear it's a Movitz object, with extra <..>"
      (null nil)
      (list
       (case (car form)
-	(backquote-comma
+	(unquote
 	 (cadr form))
 	(t (cons 'append
 		 (loop for sub-form-head on form
@@ -126,26 +88,26 @@ make clear it's a Movitz object, with extra <..>"
 			      (list 'list
 				    (list 'list (list 'quote 'muerte::movitz-backquote)
 					  (un-backquote (cadr sub-form) (1+ level)))))
-			     (backquote-comma
+			     (unquote
 			      (cond
 			       ((= 0 level)
 				(list 'list (cadr sub-form)))
 			       ((and (listp (cadr sub-form))
-				     (eq 'backquote-comma-at (caadr sub-form)))
+				     (eq 'unquote-splicing (caadr sub-form)))
 				(list 'append
 				      (list 'mapcar
-					    '(lambda (x) (list 'backquote-comma x))
+					    '(lambda (x) (list 'unquote x))
 					    (cadr (cadr sub-form)))))
 			       (t (list 'list
 					(list 'list
-					      (list 'quote 'backquote-comma)
+					      (list 'quote 'unquote)
 					      (un-backquote (cadr sub-form) (1- level)))))))
-			     (backquote-comma-at
+			     (unquote-splicing
 			      (if (= 0 level)
 				  (cadr sub-form)
 				(list 'list
 				      (list 'list
-					    (list 'quote 'backquote-comma-at)
+					    (list 'quote 'unquote-splicing)
 					    (un-backquote (cadr sub-form) (1- level))))))
 			     (t (list 'list (un-backquote sub-form level))))))
 		     when (not (listp (cdr sub-form-head)))

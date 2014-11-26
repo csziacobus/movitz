@@ -246,7 +246,7 @@
 		       (not (cddr object)))
 		  (write-char #\` stream)
 		  (write (cadr object)))
-                 ((and (eq 'backquote-comma (car object))
+                 ((and (eq 'unquote (car object))
 		       (not (cddr object)))
 		  (write-char #\, stream)
 		  (write (cadr object)))

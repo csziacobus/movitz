@@ -382,7 +382,7 @@ of string delimited by start and end."
      (null nil)
      (list
       (case (car form)
-	(backquote-comma
+	(unquote
 	 (cadr form))
 	(t (cons 'append
 		 (loop for sub-form-head on form
@@ -395,30 +395,30 @@ of string delimited by start and end."
 			((atom sub-form)
 			 (list 'quote (list sub-form)))
 			(t (case (car sub-form)
-			     (muerte::movitz-backquote
+			     ((muerte::movitz-backquote)
 			      (list 'list
 				    (list 'list (list 'quote 'muerte::movitz-backquote)
 					  (un-backquote (cadr sub-form) (1+ level)))))
-			     (backquote-comma
+			     (unquote
 			      (cond
 			       ((= 0 level)
 				(list 'list (cadr sub-form)))
 			       ((and (listp (cadr sub-form))
-				     (eq 'backquote-comma-at (caadr sub-form)))
+				     (eq 'unquote-splicing (caadr sub-form)))
 				(list 'append
 				      (list 'mapcar
-					    '(lambda (x) (list 'backquote-comma x))
+					    '(lambda (x) (list 'unquote x))
 					    (cadr (cadr sub-form)))))
 			       (t (list 'list
 					(list 'list
-					      (list 'quote 'backquote-comma)
+					      (list 'quote 'unquote)
 					      (un-backquote (cadr sub-form) (1- level)))))))
-			     (backquote-comma-at
+			     (unquote-splicing
 			      (if (= 0 level)
 				  (cadr sub-form)
 				(list 'list
 				      (list 'list
-					    (list 'quote 'backquote-comma-at)
+					    (list 'quote 'unquote-splicing)
 					    (un-backquote (cadr sub-form) (1- level))))))
 			     (t (list 'list (un-backquote sub-form level))))))
 		     when (not (listp (cdr sub-form-head)))

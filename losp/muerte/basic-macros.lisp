@@ -929,24 +929,24 @@
 (defmacro/cross-compilation backquote (form)
   (typecase form
     (list
-     (if (eq 'backquote-comma (car form))
+     (if (eq 'unquote (car form))
 	 (cadr form)
-       (cons 'append
-	     (loop for sub-form-head on form
-		 as sub-form = (and (consp sub-form-head)
-				    (car sub-form-head))
-		 collecting
-		   (cond
-		    ((atom sub-form-head)
-		     (list 'quote sub-form-head))
-		    ((atom sub-form)
-		     (list 'quote (list sub-form)))
-		    (t (case (car sub-form)
-			 (backquote-comma
-			  (list 'list (cadr sub-form)))
-			 (backquote-comma-at
-			  (cadr sub-form))
-			 (t (list 'list (list 'backquote sub-form))))))))))
+         (cons 'append
+               (loop for sub-form-head on form
+                     as sub-form = (and (consp sub-form-head)
+                                        (car sub-form-head))
+                     collecting
+                     (cond
+                       ((atom sub-form-head)
+                        (list 'quote sub-form-head))
+                       ((atom sub-form)
+                        (list 'quote (list sub-form)))
+                       (t (case (car sub-form)
+                            (unquote
+                             (list 'list (cadr sub-form)))
+                            (unquote-splicing
+                             (cadr sub-form))
+                            (t (list 'list (list 'backquote sub-form))))))))))
     (array
      (error "Array backquote not implemented."))
     (t (list 'quote form))))
@@ -1055,6 +1055,7 @@
   (error "numargs-case at illegal position."))
 
 (defmacro movitz-backquote (expression)
+  #+nil`(quasiquote ,expression)
   (un-backquote expression 0))
 
 (define-compiler-macro spin-wait-pause ()

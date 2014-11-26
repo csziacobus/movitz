@@ -1290,9 +1290,9 @@
 	   ))
 
 (print '(muerte::un-backquote ; make asdf/sbcl realize that these symbols exists..
-	 muerte::backquote-comma
-	 muerte::backquote-comma-at
-	 muerte::backquote-comma-dot)
+	 muerte::unquote
+	 muerte::unquote-splicing
+	 muerte::unquote-nsplicing)
        (make-broadcast-stream))
 
 (defpackage #:movitz
@@ -1387,9 +1387,9 @@
 		muerte::translate-program
 		muerte::decode-macro-lambda-list
 		muerte::un-backquote
-		muerte::backquote-comma
-		muerte::backquote-comma-at
-		muerte::backquote-comma-dot
+		muerte::unquote
+		muerte::unquote-splicing
+		muerte::unquote-nsplicing
 
 		muerte::decode-optional-formal
 		muerte::decode-keyword-formal
