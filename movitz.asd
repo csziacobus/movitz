@@ -35,6 +35,7 @@
                (:module "compiler"
                 :description "Compiler, run-time, and libraries for Movitz"
                 :components ((:file "packages")
+                             (:file "readtable")
                              (:file "movitz")
                              (:file "parse")
                              (:file "eval")
