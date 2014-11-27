@@ -33,7 +33,6 @@
 (defun comma (stream char)
   (declare (ignore char))
   (unless (plusp *backquote-depth*)
-    (print *backquote-depth*)
     (error "Comma not inside backquote."))
   (let* ((next-char (read-char stream t nil t))
          (comma-type (case next-char
