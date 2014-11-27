@@ -18,7 +18,7 @@
 (defun setf-name (name)
   "If NAME is on the form (setf <x>), return <x>. Otherwise return NIL."
   (and (listp name)
-       (= 2 (length name))
+       (not (cddr name))
        (eq 'muerte.cl:setf (first name))
        (second name)))
 
