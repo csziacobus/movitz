@@ -32,7 +32,7 @@
 
 (defun current-process ()
   (let ((rtc (current-run-time-context)))
-    (or (find rtc *all-processes* :key 'process-rtc)
+    (or (find rtc *all-processes* :key #'process-rtc)
         ;; don't forget the idle process..yuk.
         (and (eq rtc (process-rtc *idle-process*)) *idle-process*))))
 

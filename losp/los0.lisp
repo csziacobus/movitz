@@ -30,6 +30,9 @@
 (require :lib/repl)
 
 (require :lib/threading)
+(require :lib/scheduler)
+
+(require :lib/graphics)
 
 ;; (require :lice-0.1/all)
 
@@ -133,13 +136,6 @@
 		    (+ (ash (ldb (byte 16 0) hi) 13) 
 		       (ash lo -16)))))
 	      (setf internal-time-units-per-second res))))))))
-  (setf (symbol-function 'sleep)
-    (lambda (seconds)
-      ;; A stupid busy-waiting sleeper.
-      (check-type seconds (real 0 *))
-      (loop with start-time = (get-internal-run-time)
-	  with end-time = (+ start-time (* seconds internal-time-units-per-second))
-	  while (< (get-internal-run-time) end-time))))
   (values))
 
 
@@ -400,6 +396,10 @@
 		 (segment-descriptor-avl-x-db-g table selector)))
   (values))
 
+(defun turn-on-irqs ()
+  ;; listen for timer and keyboard IRQ interrupts
+  (setf (pic8259-irq-mask) #xfffc)
+  (with-inline-assembly (:returns :nothing) (:sti)))
 
 (defun genesis ()
   ;; (install-shallow-binding)
@@ -476,6 +476,9 @@
     (setf threading:*segment-descriptor-table-manager*
       (make-instance 'threading:segment-descriptor-table-manager))
     
+    (muerte.x86-pc.keyboard::install-keyboard)
+    (muerte.lib::setup-scheduling)
+    (turn-on-irqs)
 ;;;    (ignore-errors
 ;;;     (setf (symbol-function 'write-char)
 ;;;       (muerte.x86-pc.serial::make-serial-write-char :baudrate 38400))
@@ -504,7 +507,4 @@
   (let ((string (muerte.readline:contextual-readline *repl-readline-context*)))
     (simple-read-from-string string eof-error-p eof-value)))
 
-
-
 (genesis)
-
