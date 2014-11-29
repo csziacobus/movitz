@@ -50,8 +50,7 @@
 ;; (defun pic8259-enable-irq (irq)
   
 (defun pic8259-end-of-interrupt (irq)
-  (if (< irq 8)
-      (setf (io-port #x20 :unsigned-byte8) #x20)
-      (setf (io-port #xa0 :unsigned-byte8) #x20
-            (io-port #x20 :unsigned-byte8) #x20))
-  nil)
+  (when (> irq 7)
+    (setf (io-port #xa0 :unsigned-byte8) #x20))
+  (setf (io-port #x20 :unsigned-byte8) #x20)
+  (values))
