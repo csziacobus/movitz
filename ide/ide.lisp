@@ -101,4 +101,3 @@ Trigger an error if PRINTNAME does not read as a symbol."
       (if (symbolp obj)
           (symbol-name obj)
           (error "Not a symbol: ~S" obj)))))
-
