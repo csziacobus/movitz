@@ -50,9 +50,10 @@
                              (:file "assembly-syntax")
                              (:file "compiler")
                              (:file "special-operators")
-                             (:file "special-operators-cl")))
+                             (:file "special-operators-cl")
+                             (:file "interactive")))
                (:module "ide"
-                :description "The Movitz SLIME lisp side backend."
+                :description "The Movitz SLIME Lisp side backend."
                 :components ((:file "package")
                              (:file "ide")))))
 
