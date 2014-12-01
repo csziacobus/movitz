@@ -47,8 +47,8 @@
        nil      :kp-ins  nil      :kp-del  nil      nil      nil      :f11 ; #x50
        :f12     nil      nil      nil      nil      nil      nil      nil ; #x58
        
-       nil      nil      nil      nil      nil      nil      nil      nil ; #x60
-       nil      nil      nil      nil      nil      nil      nil      nil ; #x68
+       nil      nil      nil      nil      nil      nil      nil      :up ; #x60
+       nil      :left    :right   nil      :down    nil      nil      :delete ; #x68
        nil      nil      nil      nil      nil      nil      nil      nil ; #x70
        nil      nil      nil      nil      nil      nil      nil      nil ; #x78
        

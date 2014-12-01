@@ -129,12 +129,12 @@ completion-start and completion-end are bounding indexes into completion's name.
       (setf (cursor-x console) (+ cursor-origin pos)))
     (loop with previous-key-was-tab-p = nil
 	and displayed-completions-p = nil
-	as key = (muerte:read-key console)
+          as key = (muerte:read-key console)
 	do (with-saved-excursion (console)
-	     (when *readline-signal-keypresses*
-	       (with-simple-restart (continue "Proceed with interactive READLINE.")
-		 (signal 'readline-keypress :key key))))
-	   (when (characterp key)
+             (when *readline-signal-keypresses*
+               (with-simple-restart (continue "Proceed with interactive READLINE.")
+                 (signal 'readline-keypress :key key))))
+	   (when (or (keywordp key) (characterp key))
 	     (unless (char= key #\tab)
 	       (setf previous-key-was-tab-p nil))
 	     (when (member key terminators)
