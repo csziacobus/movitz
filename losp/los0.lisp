@@ -56,6 +56,8 @@
 ;; (require :asteroids)
 (require :scratch)
 
+(require :tmp/ext2fs)
+
 (in-package los0)
 
 ;; (defun load-ansi-tests ()
