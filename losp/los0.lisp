@@ -56,6 +56,7 @@
 ;; (require :asteroids)
 (require :scratch)
 
+#+bugs-out-image
 (require :tmp/ext2fs)
 
 (in-package los0)
