@@ -703,7 +703,7 @@
     (:character
      (make-instance 'movitz-character :char (code-char (ldb (byte 8 8) word))))
     (:null
-     (image-nil-word image))
+     (image-nil-object image))
     (t (image-memref *image* (logand word #xfffffff8) t))))
 
 (defun movitz-intern-code-vector (object &optional (type 'code-vector-word))
