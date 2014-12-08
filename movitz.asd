@@ -25,7 +25,7 @@
   :description "Common Lisp on x86."
   :serial t
   :default-component-class movitz-source-file
-  :depends-on (binary-types)
+  :depends-on (mcclim bordeaux-threads binary-types)
   :components ((:module "assembler"
                 :description
                 "An (dis-)assembler framework, with support for x86 in 16, 32, and 64-bit modes."
@@ -55,7 +55,11 @@
                (:module "ide"
                 :description "The Movitz SLIME Lisp side backend."
                 :components ((:file "package")
-                             (:file "ide")))))
+                             (:file "ide")))
+               (:module "image-browser"
+                :description "The Movitz graphical image browser."
+                :components ((:file "package")
+                             (:file "browser")))))
 
 ;; stop sbcl from complaining about redefining defconstant forms
 #+sbcl

@@ -25,11 +25,6 @@ Now there are two options:
 
 You can use `qemu-system-i386 foo.img` to run the image in a virtualized environment.
 
-Documentation and Information
------------------------------
-More information on movitz can be found at the [Movitz Trac Page]
-(http://trac.common-lisp.net/movitz/wiki)
-
 Movitz and Slime
 ----------------
 To enable the Movitz extension to Slime, evaluate
@@ -53,4 +48,16 @@ dump the image you can use `(C-C d)).
 You may need to set the variable movitz-mode-qemu-binary-path
 in order to have qemu automatically execute the image.
 
+Using the Image Browser
+-----------------------
+The image browser, written in the CLIM framework, can be used
+to graphically examine the contents of the symbolic image.
+In order to use the graphical browser you must first create and
+dump a symbolic image. Then you can use
+`(movitz-browser:browser)` to invoke the image browser.
+
+Documentation and Information
+-----------------------------
+More information on movitz can be found at the [Movitz Trac Page]
+(http://trac.common-lisp.net/movitz/wiki)
 

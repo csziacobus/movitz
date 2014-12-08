@@ -45,7 +45,7 @@
   (funcall (get-delete-file-fn fs) path))
 
 (defun list-open-files (fs)
-      (funcall (get-list-open-files-fn fs)))
+  (funcall (get-list-open-files-fn fs)))
 
 (defun list-dir (fs path)
   (funcall (get-list-dir-fn fs) path))

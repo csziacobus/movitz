@@ -55,8 +55,7 @@
   (:panes
    (graph
     :application
-    ;; :label "Object Graph"
-    ;; :scroll-bars nil
+    :label "Object Graph"
     :initial-cursor-visibility nil
     :display-function 'display-graph))
   (:layouts
@@ -95,8 +94,12 @@
                                          :object (browser-child object child-slot-name)
                                          :parent object
                                          :slot-name child-slot-name))
-                                      (browser-open-slots tree object parent slot-name))))
-			  :graph-type :digraph
+                                      (browser-open-slots tree object parent slot-name)
+                                      
+                                        )))
+			  ;; McClim doesn't implement digraphs yet :(
+                          ;:graph-type :digraph
+                          :graph-type :directed-acyclic-graph
 			  :within-generation-separation 2
 			  :maximize-generations nil
 			  :generation-separation 60
@@ -195,16 +198,18 @@
 	  (loop for x from 0 below (movitz-struct-length object)
                 collect `(struct-ref ,x))))
 
-(defun browse-image (*image* &key (root (make-graph-tuple
-					 :object (movitz-word (movitz-read-and-intern nil 'word))
-					 :tree (gensym))))
+(defun browse-image
+    (*image* &key
+               (root (make-graph-tuple
+                      :object (movitz::image-run-time-context *image*)
+                      :tree (gensym))))
   (let ((*endian* :little-endian)
 	(*print-radix* t)
 	(*print-base* 16))
     (run-frame-top-level
      (make-application-frame 'browser
 			     :width 700
-			     :height 700
+			     :height 700 
 			     :root-tuple root))))
 
 (defun browse-word (word)
