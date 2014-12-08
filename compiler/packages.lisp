@@ -1289,12 +1289,6 @@
 	   #:vector-read-more-p
 	   ))
 
-(print '(muerte::un-backquote ; make asdf/sbcl realize that these symbols exists..
-	 muerte::unquote
-	 muerte::unquote-splicing
-	 muerte::unquote-nsplicing)
-       (make-broadcast-stream))
-
 (defpackage #:movitz
   (:use :common-lisp :binary-types)
   (:export #:create-image
