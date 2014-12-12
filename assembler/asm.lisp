@@ -16,8 +16,9 @@
 (defvar *symtab* nil "Current symbol table.")
 (defvar *instruction-compute-extra-prefix-map* nil)
 (defvar *position-independent-p* t)
-(defvar *sub-program-instructions* '(:jmp :ret :iretd)
-  "Instruction operators after which to insert sub-programs.")
+(define-constant +sub-program-instructions+ '(:jmp :ret :iretd)
+  :test #'equal
+  :documentation "Instruction operators after which to insert sub-programs.")
 
 (defvar *anonymous-sub-program-identities* nil)
 
@@ -113,8 +114,6 @@
   (:report (lambda (c s)
 	     (format s "Unresolved symbol ~S." (unresolved-symbol c)))))
 
-
-
 (defun resolve-operand (operand)
   (typecase operand
     (integer
@@ -201,7 +200,7 @@
 					      (sub-program-program operand))
 					sub-programs)))
 		       when (and (not (null sub-programs))
-				 (member operator *sub-program-instructions*))
+				 (member operator +sub-program-instructions+))
 		       append (loop for sub-program in (nreverse sub-programs)
 				 append (mapcan #'process-instruction sub-program)
 				 finally (setf sub-programs nil)))))

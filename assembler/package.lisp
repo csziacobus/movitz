@@ -1,7 +1,7 @@
 ;; package.lisp
 
 (defpackage asm
-  (:use :common-lisp)
+  (:use :common-lisp :alexandria)
   (:export #:symbol-reference-p
 	   #:symbol-reference
 	   #:symbol-reference-symbol

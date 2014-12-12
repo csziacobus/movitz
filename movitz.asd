@@ -25,7 +25,7 @@
   :description "Common Lisp on x86."
   :serial t
   :default-component-class movitz-source-file
-  :depends-on (mcclim bordeaux-threads binary-types)
+  :depends-on (alexandria bordeaux-threads binary-types mcclim)
   :components ((:module "assembler"
                 :description
                 "An (dis-)assembler framework, with support for x86 in 16, 32, and 64-bit modes."
