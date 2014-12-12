@@ -1009,72 +1009,69 @@ a (lexical-extent) sub-function might care about its parent frame-map."
   funobj)
 
 (defun assemble-funobj (funobj combined-code &key extra-prefix-computers)
-  (multiple-value-bind (code code-symtab)
+  (multiple-value-bind (code code-symtab code-length)
       (let ((asm-x86:*cpu-mode* :32-bit)
 	    (asm:*instruction-compute-extra-prefix-map*
-	     (append extra-prefix-computers
-		     '((:call . compute-call-extra-prefix)))))
-	(asm:assemble-proglist combined-code
-			       :symtab (list* (cons :nil-value (image-nil-word *image*))
-					      (loop for (label . set) in (movitz-funobj-jumpers-map funobj)
-						 collect (cons label
-							       (* 4 (or (search set (movitz-funobj-const-list funobj)
-										:end2 (movitz-funobj-num-jumpers funobj))
-									(error "Jumper for ~S missing." label))))))))
-    (let ((code-length (- (length code) 3 -3)))
-      (let ((locate-inconsistencies (check-locate-concistency code code-length)))
-	(when locate-inconsistencies
-	  (when (rassoc 'compute-extra-prefix-locate-inconsistencies
-			extra-prefix-computers)
-	    (error "~S failed to fix locate-inconsistencies. This should not happen."
-		   'compute-extra-prefix-locate-inconsistencies))
-	  (return-from assemble-funobj
-	    (assemble-funobj funobj combined-code
-			     :extra-prefix-computers (list (cons t (lambda (pc size)
-								     (loop for bad-pc in locate-inconsistencies
-									when (<= pc bad-pc (+ pc size))
-									return '(#x90)))))))
-			     
-	  (break "locate-inconsistencies: ~S" locate-inconsistencies)))
-      (setf (movitz-funobj-symtab funobj) code-symtab)
-      (let ((code-vector (make-array code-length
-				     :initial-contents code
-				     :fill-pointer t)))
-	(setf (fill-pointer code-vector) code-length)
-	;; debug info
-	(setf (ldb (byte 1 5) (slot-value funobj 'debug-info))
-	      1 #+ignore (if use-stack-frame-p 1 0))
-	(let ((x (cdr (assoc 'start-stack-frame-setup code-symtab))))
-	  (cond
-	    ((not x)
-	     #+ignore (warn "No start-stack-frame-setup label for ~S." name))
-	    ((<= 0 x 30)
-	     (setf (ldb (byte 5 0) (slot-value funobj 'debug-info)) x))
-	    (t (warn "Can't encode start-stack-frame-setup label ~D into debug-info for ~S."
-		     x (movitz-funobj-name funobj)))))
-	(let* ((a (or (cdr (assoc 'entry%1op code-symtab)) 0))
-	       (b (or (cdr (assoc 'entry%2op code-symtab)) a))
-	       (c (or (cdr (assoc 'entry%3op code-symtab)) b)))
-	  (unless (<= a b c)
-	    (warn "Weird code-entries: ~D, ~D, ~D." a b c))
-	  (unless (<= 0 a 255)
-	    (break "entry%1: ~D" a))
-	  (unless (<= 0 b 2047)
-	    (break "entry%2: ~D" b))
-	  (unless (<= 0 c 4095)
-	    (break "entry%3: ~D" c)))
-	(loop for (entry-label slot-name) in '((entry%1op code-vector%1op)
-					       (entry%2op code-vector%2op)
-					       (entry%3op code-vector%3op))
-	   do (when (assoc entry-label code-symtab)
-		(let ((offset (cdr (assoc entry-label code-symtab))))
-		  (setf (slot-value funobj slot-name)
-			(cons offset funobj)))))
-	(setf (movitz-funobj-code-vector funobj)
-	      (make-movitz-vector (length code-vector)
-				  :fill-pointer code-length
-				  :element-type 'code
-				  :initial-contents code-vector)))))
+              (append extra-prefix-computers
+                      '((:call . compute-call-extra-prefix)))))
+        (asm:assemble-proglist combined-code
+                               :symtab (list* (cons :nil-value (image-nil-word *image*))
+                                              (loop for (label . set) in (movitz-funobj-jumpers-map funobj)
+                                                    collect (cons label
+                                                                  (* 4 (or (search set (movitz-funobj-const-list funobj)
+                                                                                   :end2 (movitz-funobj-num-jumpers funobj))
+                                                                           (error "Jumper for ~S missing." label))))))))
+    (let ((locate-inconsistencies (check-locate-concistency code code-length)))
+      (when locate-inconsistencies
+        (when (rassoc 'compute-extra-prefix-locate-inconsistencies
+                      extra-prefix-computers)
+          (error "~S failed to fix locate-inconsistencies. This should not happen."
+                 'compute-extra-prefix-locate-inconsistencies))
+        (return-from assemble-funobj
+          (assemble-funobj funobj combined-code
+                           :extra-prefix-computers (list (cons t (lambda (pc size)
+                                                                   (loop for bad-pc in locate-inconsistencies
+                                                                         when (<= pc bad-pc (+ pc size))
+                                                                           return '(#x90)))))))))
+    (setf (movitz-funobj-symtab funobj) code-symtab)
+    (let ((code-vector (make-array code-length
+                                   :initial-contents code
+                                   :fill-pointer t)))
+      (setf (fill-pointer code-vector) code-length)
+      ;; debug info
+      (setf (ldb (byte 1 5) (slot-value funobj 'debug-info))
+            1 #+ignore (if use-stack-frame-p 1 0))
+      (let ((x (cdr (assoc 'start-stack-frame-setup code-symtab))))
+        (cond
+          ((not x)
+           #+ignore (warn "No start-stack-frame-setup label for ~S." name))
+          ((<= 0 x 30)
+           (setf (ldb (byte 5 0) (slot-value funobj 'debug-info)) x))
+          (t (warn "Can't encode start-stack-frame-setup label ~D into debug-info for ~S."
+                   x (movitz-funobj-name funobj)))))
+      (let* ((a (or (cdr (assoc 'entry%1op code-symtab)) 0))
+             (b (or (cdr (assoc 'entry%2op code-symtab)) a))
+             (c (or (cdr (assoc 'entry%3op code-symtab)) b)))
+        (unless (<= a b c)
+          (warn "Weird code-entries: ~D, ~D, ~D." a b c))
+        (unless (<= 0 a 255)
+          (break "entry%1: ~D" a))
+        (unless (<= 0 b 2047)
+          (break "entry%2: ~D" b))
+        (unless (<= 0 c 4095)
+          (break "entry%3: ~D" c)))
+      (loop for (entry-label slot-name) in '((entry%1op code-vector%1op)
+                                             (entry%2op code-vector%2op)
+                                             (entry%3op code-vector%3op))
+            do (when (assoc entry-label code-symtab)
+                 (let ((offset (cdr (assoc entry-label code-symtab))))
+                   (setf (slot-value funobj slot-name)
+                         (cons offset funobj)))))
+      (setf (movitz-funobj-code-vector funobj)
+            (make-movitz-vector (length code-vector)
+                                :fill-pointer code-length
+                                :element-type 'code
+                                :initial-contents code-vector))))
   funobj)
 
 (defun check-locate-concistency (code code-vector-length)

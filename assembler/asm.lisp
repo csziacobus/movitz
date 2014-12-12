@@ -133,7 +133,8 @@
 ;;;;;;;;;;;;
 
 (defun assemble-proglist (proglist &key ((:symtab incoming-symtab) *symtab*) corrections (start-pc 0) (cpu-package '#:asm-x86))
-  "Encode a proglist, using instruction-encoder in symbol assemble-instruction from cpu-package."
+  "Encode a proglist, using instruction-encoder in symbol assemble-instruction from cpu-package.
+Return the assembled code length as well."
   (let ((encoder (find-symbol (string '#:assemble-instruction) cpu-package))
 	(*pc* start-pc)
 	(*symtab* (append incoming-symtab corrections))
@@ -188,22 +189,22 @@
 				  (push a *symtab*)
 				  (invoke-restart 'retry-symbol-resolve)))))
 	(let ((code (loop for instruction in proglist
-		       for operands = (when (consp instruction)
-					instruction)
-		       for operator = (when (consp instruction)
-					(let ((x (pop operands)))
-					  (if (not (listp x)) x (pop operands))))
-		       append (process-instruction instruction)		   
-		       do (loop for operand in operands
-			     do (when (sub-program-operand-p operand)
-				  (push (cons (sub-program-label operand)
-					      (sub-program-program operand))
-					sub-programs)))
-		       when (and (not (null sub-programs))
-				 (member operator +sub-program-instructions+))
-		       append (loop for sub-program in (nreverse sub-programs)
-				 append (mapcan #'process-instruction sub-program)
-				 finally (setf sub-programs nil)))))
+                          for operands = (when (consp instruction)
+                                           instruction)
+                          for operator = (when (consp instruction)
+                                           (let ((x (pop operands)))
+                                             (if (not (listp x)) x (pop operands))))
+                          append (process-instruction instruction)		   
+                          do (loop for operand in operands
+                                   do (when (sub-program-operand-p operand)
+                                        (push (cons (sub-program-label operand)
+                                                    (sub-program-program operand))
+                                              sub-programs)))
+                          when (and (not (null sub-programs))
+                                    (member operator +sub-program-instructions+))
+                            append (loop for sub-program in (nreverse sub-programs)
+                                         append (mapcan #'process-instruction sub-program)
+                                         finally (setf sub-programs nil)))))
 	  (cond
 	    ((not (null assumptions))
 	     (error "Undefined symbol~P: ~{~S~^, ~}"
@@ -215,7 +216,7 @@
 				:start-pc start-pc
 				:cpu-package cpu-package
 				:corrections (nconc new-corrections corrections)))
-	    (t (values code *symtab*))))))))
+	    (t (values code *symtab* *pc*))))))))
 
 (defun instruction-operator (instruction)
   (if (listp (car instruction)) ; skip any instruction prefixes etc.
