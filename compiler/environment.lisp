@@ -487,30 +487,30 @@ the function sets up itself. Its parent env. must be a funobj-env."))
       (let ((local-binding (cdr (assoc symbol (movitz-environment-bindings environment)))))
 	(if (operator-binding-p local-binding)
 	    (values local-binding environment)
-	  (and recurse (movitz-operator-binding symbol (movitz-environment-uplink environment))))))))
+            (and recurse (movitz-operator-binding symbol (movitz-environment-uplink environment))))))))
 
 ;;; Accessor: movitz-env-get (symbol property)
 
 (defun movitz-env-get (symbol indicator &optional (default nil)
-					       (environment nil)
-					       (recurse-p t))
+                                                  (environment nil)
+                                                  (recurse-p t))
   (loop for env = (or environment *movitz-global-environment*)
-     then (when recurse-p (movitz-environment-uplink env))
-     for plist = (and env (getf (movitz-environment-plists env) symbol))
-     while env
-     do (let ((val (getf plist indicator '#0=#:not-found)))
-	  (unless (eq val '#0#)
-	    (return (values val env))))
-     finally (return default)))
+          then (when recurse-p (movitz-environment-uplink env))
+        for plist = (and env (getf (movitz-environment-plists env) symbol))
+        while env
+        do (let ((val (getf plist indicator '#0=#:not-found)))
+             (unless (eq val '#0#)
+               (return (values val env))))
+        finally (return default)))
 
 (defun (setf movitz-env-get) (val symbol indicator
 			   &optional default environment)
   (declare (ignore default))
   (setf (getf (getf (movitz-environment-plists (or environment
-						*movitz-global-environment*))
+                                                   *movitz-global-environment*))
 		    symbol)
 	      indicator)
-    val))
+        val))
     
 ;;; Accessor: movitz-env-symbol-function
 

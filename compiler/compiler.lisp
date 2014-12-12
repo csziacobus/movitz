@@ -2478,12 +2478,11 @@ of argument <argnum>."
 
 ;;;
 
-
+(declaim (inline ignore-instruction-prefixes))
 (defun ignore-instruction-prefixes (instruction)
-  (if (and (consp instruction)
-	   (listp (car instruction)))
+  (if (and (consp instruction) (listp (car instruction)))
       (cdr instruction)
-    instruction))
+      instruction))
 
 (defun instruction-sub-program (instruction)
   "When an instruction contains a sub-program, return that program, and 
@@ -2503,10 +2502,10 @@ the sub-program options (&optional label) as secondary value."
   (and (listp instruction)
        (if (member (car instruction) '(:globally :locally))
 	   (instruction-is (second instruction) operator)
-	 (let ((instruction (ignore-instruction-prefixes instruction)))
-	   (if operator
-	       (eq operator (car instruction))
-	     (car instruction))))))
+           (let ((instruction (ignore-instruction-prefixes instruction)))
+             (if operator
+                 (eq operator (car instruction))
+                 (car instruction))))))
 
 (defun instruction-uncontinues-p (instruction)
   "Is it impossible for control to return after instruction?"
@@ -3282,17 +3281,18 @@ the sub-program options (&optional label) as secondary value."
 			(tree-search* (cdr tree) item)))
 		   (t (eq tree item)))))
 	(tree-search* tree items))
-    (etypecase tree
-      (atom
-       (if (atom items)
-	   (eql tree items)
-	 (member tree items)))
-      (cons
-       (or (tree-search (car tree) items)
-	   (tree-search (cdr tree) items))))))
+      (etypecase tree
+        (atom
+         (if (atom items)
+             (eql tree items)
+             (member tree items)))
+        (cons
+         (or (tree-search (car tree) items)
+             (tree-search (cdr tree) items))))))
 
-(defun operator (x)
-  (if (atom x) x (car x)))
+(declaim (inline operator operands))
+(defun operator (x) (alexandria:ensure-car x))
+(defun operands (x) (if (symbolp x) nil (cdr x)))
 
 (defun result-mode-type (x)
   (etypecase x
@@ -3301,9 +3301,6 @@ the sub-program options (&optional label) as secondary value."
     (constant-object-binding :constant-binding)
     (lexical-binding :lexical-binding)
     (dynamic-binding :dynamic-binding)))
-
-(defun operands (x)
-  (if (symbolp x) nil (cdr x)))
 
 (defun funobj-assign-bindings (code env &optional (stack-frame-position 1)
 						  (frame-map (make-binding-map)))

@@ -1001,7 +1001,7 @@ where zot is not in foo's scope, but _is_ in foo's extent."
 	    (with-host-environment ()
 	      (if *compiler-compile-eval-whens*
 		  (funcall (compile () `(lambda () ,toplevel-form)))
-		(eval toplevel-form)))))))))
+                  (eval toplevel-form)))))))))
 
 (define-special-operator function (&funobj funobj &form form &result-mode result-mode &env env)
   (destructuring-bind (name)
