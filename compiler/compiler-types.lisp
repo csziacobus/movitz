@@ -328,21 +328,21 @@ and any element of range1."
 	(etypecase member
 	  (movitz-fixnum
 	   (setf new-intscope
-	     (numscope-union new-intscope	    
-			     (make-numscope (movitz-fixnum-value member)
-					    (movitz-fixnum-value member)))))
+                 (numscope-union new-intscope	    
+                                 (make-numscope (movitz-fixnum-value member)
+                                                (movitz-fixnum-value member)))))
 	  (movitz-object
 	   (pushnew member new-members :test #'movitz-eql)))))
     (let ((new-code (logior (if (atom codes)
 				(type-code codes)
-			      (apply #'type-code codes))
+                                (apply #'type-code codes))
 			    (if (numscope-allp new-intscope)
 				(type-code 'integer)
-			      0))))
+                                0))))
       (values new-code
 	      (if (type-code-p 'integer new-code)
 		  (make-numscope nil nil)
-		new-intscope)
+                  new-intscope)
 	      new-members
 	      include
 	      complement))))

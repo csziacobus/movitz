@@ -204,13 +204,13 @@ This way, we ensure that no undue side-effects on the funobj occur during pass 1
 
 (defun movitz-macro-expander-make-function (lambda-form &key name (type :unknown))
   "Make a lambda-form that is a macro-expander into a proper function.
-Gensym a name whose symbol-function is set to the macro-expander, and return that symbol."
-  (let ((function-name (gensym (format nil "~A-expander-~@[~A-~]" type name))))
+Make an uninterned symbol whose symbol-function is set to the macro-expander, and return that symbol."
+  (let ((function-name (make-symbol (format nil "~A-expander-~@[~A-~]" type name))))
     (if *compiler-compile-macro-expanders*
 	(with-host-environment ()
 	  (compile function-name lambda-form))
-      (setf (symbol-function function-name)
-	(coerce lambda-form 'function)))
+        (setf (symbol-function function-name)
+              (coerce lambda-form 'function)))
     function-name))
 
 (defun make-compiled-funobj (name lambda-list declarations form env top-level-p &key funobj)
